@@ -15,8 +15,8 @@ app.use(session({
     saveUninitialized: false
 }));
 
-app.listen(3030, function () {
-    console.log("Listening on server port: 3030");
+app.listen(80, function () {
+    console.log("Listening on server port: 80");
 });
 
 //default handler
@@ -1107,8 +1107,8 @@ let connectDB= function connectDB() {
         const conn=mysql.createConnection({
             host: "remotemysql.com",
             port: 3306,
-            user: "iiitd_hostel_portal",
-            password: "orSRZaZeRh",
+            user: "iiitd_hostel_admin",
+            password: ".........",
             database: "HostelDB",
             multipleStatements: true
         });
