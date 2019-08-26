@@ -175,7 +175,7 @@
                 if (json.code===1) {
                     let sem_list=document.getElementById('current_semester_select');
 
-                    sem_list.innerHTML=`<option value="1" selected>Select</option>`;
+                    sem_list.innerHTML=`<option value="0" selected>Select</option>`;
                     
                     for (let i=0;i<json.semesters.length;i++) {
                         if (json.semesters[i].status===2){
@@ -273,7 +273,7 @@
             if (confirm("Are you sure you want to change semester? Changing semester will result in restarting of hostel allocation process removing all current room holders.")) {
                 const sem_sel=document.getElementById('current_semester_select');
                 const sem=sem_sel.options[sem_sel.selectedIndex].value.trim();
-                if (sem==="1") {
+                if (sem==="0") {
                     showSnackBar("Select a semester!");
                 }else {
                     document.getElementById('loading').style.visibility="visible";
@@ -656,7 +656,7 @@
         <div id="current_sem_text" style="text-align: center; color: #1e9cb9; font-size: 30px;">No Current Semester Allocated</div><br><br><br>
         <div style="margin-left: 10%;">Select current semester:
             <select style="border: 1px solid #f0f1ef; width: 200px; padding: 10px; margin-left: 10px; border-radius: 5px; font-family: comfortaa, sans-serif; font-size: 18px;" id="current_semester_select">
-                <option value="1" selected>Select</option>
+                <option value="0" selected>Select</option>
             </select>
             <button style="width: 100px; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 15px; border-radius: 10px; font-size: 14px; color: #ffffff;" class="textFormatNormal" onclick="changeSemester()">Change</button>
         </div>
