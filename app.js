@@ -708,7 +708,7 @@ let AdminAccountInfo= function AdminAccountInfo(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and status=0 or status=1 or status=3; select * from Semesters;`, function (err, result) {
+            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and (status=0 or status=1 or status=3); select * from Semesters;`, function (err, result) {
                 connection.end();
                 if (err) {
                     console.log(err);
