@@ -14,6 +14,8 @@
         let new_request_button_status=0;
         let approved_request_button_status=0;
         let rejected_request_button_status=0;
+        let approved_request_json=[];
+        let rejected_request_json=[];
 
         $(document).ready(function(){
             document.getElementById('new_requests_div').style.display="none";
@@ -233,6 +235,9 @@
                         if (fees[i].id===4) {
                             document.getElementById('double_phd_fees').value=fees[i].fees;
                         }
+                        if (fees[i].id===5) {
+                            document.getElementById('security_fees').value=fees[i].fees;
+                        }
                     }
                 }else {
                     showSnackBar(json.info);
@@ -241,14 +246,89 @@
             xhr.send("email="+userinfo.user.email);
         }
 
+
+
+        function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel, fileName) {
+            //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+            var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+
+            var CSV = '';    
+            //Set Report title in first row or line
+
+            CSV += ReportTitle + '\r\n\n';
+
+            //This condition will generate the Label/Header
+            if (ShowLabel) {
+                var row = "";
+
+                //This loop will extract the label from 1st index of on array
+                for (var index in arrData[0]) {
+
+                    //Now convert each value to string and comma-seprated
+                    row += index + ',';
+                }
+
+                row = row.slice(0, -1);
+
+                //append Label row with line break
+                CSV += row + '\r\n';
+            }
+
+            //1st loop is to extract each row
+            for (var i = 0; i < arrData.length; i++) {
+                var row = "";
+
+                //2nd loop will extract each column and convert it in string comma-seprated
+                for (var index in arrData[i]) {
+                    row += '"' + arrData[i][index] + '",';
+                }
+
+                row.slice(0, row.length - 1);
+
+                //add a line break after each row
+                CSV += row + '\r\n';
+            }
+
+            if (CSV == '') {        
+                alert("Invalid data");
+                return;
+            }   
+
+            //this will remove the blank-spaces from the title and replace it with an underscore
+            fileName += ReportTitle.replace(/ /g,"_");   
+
+            //Initialize file format you want csv or xls
+            var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+            // Now the little tricky part.
+            // you can use either>> window.open(uri);
+            // but this will not work in some browsers
+            // or you will not get the correct file extension    
+
+            //this trick will generate a temp <a /> tag
+            var link = document.createElement("a");    
+            link.href = uri;
+
+            //set the visibility hidden so it will not effect on your web-layout
+            link.style = "visibility:hidden";
+            link.download = fileName + ".csv";
+
+            //this part will append the anchor tag and remove it after automatic click
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
         function saveFees() {
             let f1=document.getElementById('single_bm_fees').value.trim().toString();
             let f2=document.getElementById('double_bm_fees').value.trim().toString();
             let f3=document.getElementById('single_phd_fees').value.trim().toString();
             let f4=document.getElementById('double_phd_fees').value.trim().toString();
+            let f5=document.getElementById('security_fees').value.trim().toString();
 
-            if (f1==="" || f2==="" || f3==="" || f4==="") {
-                showSnackBar("Fees value cannot be null");
+            if (f1==="" || f2==="" || f3==="" || f4===""|| f5==="") {
+                showSnackBar("Fees value cannot be empty");
             }else {
                 document.getElementById('loading').style.visibility = "visible";
                 var xhr = new XMLHttpRequest();
@@ -259,7 +339,8 @@
                     let json=JSON.parse(xhr.responseText);
                     showSnackBar(json.info);
                 };
-                xhr.send("email="+userinfo.user.email+"&f1="+f1+"&f2="+f2+"&f3="+f3+"&f4="+f4);
+            
+                xhr.send("email="+userinfo.user.email+"&f1="+f1+"&f2="+f2+"&f3="+f3+"&f4="+f4+"&f5="+f5);
             }
         }
 
@@ -305,6 +386,16 @@
             snackbar.className="show";
             setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 6000);
         }
+
+
+        function downloadApproved() {
+            JSONToCSVConvertor(approved_request_json, '', true, 'approved_requests');
+        }
+
+        function downloadRejected() {
+            JSONToCSVConvertor(rejected_request_json, '', true, 'rejected_requests');
+        }
+
 
         //display the data on webpage
         function displayData() {
@@ -403,6 +494,7 @@
                         color="#34d870";
                         hostel=userinfo.requests[i].hostel_allocated;
                         room_alloc=userinfo.requests[i].room_allocated;
+                        approved_request_json.push(userinfo.requests[i]);
                         approved_request_str+=`
                                     <div style="height: 40px;">
                                     <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
@@ -430,6 +522,7 @@
                         color="#ec4444";
                         hostel=userinfo.requests[i].prefered_hostel;
                         room_alloc=".";
+                        rejected_request_json.push(userinfo.requests[i]);
                         rejected_request_str+=`
                                    <div style="height: 40px;">
                                     <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
@@ -573,7 +666,7 @@
     </div>
 
     <div id="approved_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
-        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Approved Requests</p>
+        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Approved Requests</p><div style="cursor: pointer;" onclick="downloadApproved()"><a class="textFormatLink">Download Excel File for Approved Requests</a></div>
         <div style="width: 100%;">
             <div class="request_box">
                 <div style="height: 40px;">
@@ -603,7 +696,7 @@
     </div>
 
     <div id="rejected_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
-        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Rejected Requests</p>
+        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Rejected Requests</p><div style="cursor: pointer;" onclick="downloadRejected()"><a class="textFormatLink">Download Excel File for Rejected Requests</a></div>
         <div style="width: 100%;">
             <div class="request_box">
                 <div style="height: 40px;">
@@ -681,8 +774,11 @@
         <div class="textFormatNormal" style="font-size: 18px;">Single Room- PHD:
             <input type="number" class="textFormatNormal" style="padding: 10px; width: 180px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef; margin-left: 135px;" placeholder="Fees" id="single_phd_fees">
         </div><br>
-        <div class="textFormatNormal" style="font-size: 18px;">Single Room- PHD:
-            <input type="number" class="textFormatNormal" style="padding: 10px; width: 180px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef; margin-left: 135px;" placeholder="Fees" id="double_phd_fees">
+        <div class="textFormatNormal" style="font-size: 18px;">Married Room:
+            <input type="number" class="textFormatNormal" style="padding: 10px; width: 180px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef; margin-left: 170px;" placeholder="Fees" id="double_phd_fees">
+        </div><br>
+        <div class="textFormatNormal" style="font-size: 18px;">Security:
+            <input type="number" class="textFormatNormal" style="padding: 10px; width: 180px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef; margin-left: 227px;" placeholder="Fees" id="security_fees">
         </div><br><br>
         <button style="width: 80%; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 10%; margin-right: 10%; border-radius: 10px; font-size: 14px; color: #ffffff;" class="textFormatNormal" onclick="saveFees()">Save Fees</button>
     </div>

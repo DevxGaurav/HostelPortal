@@ -393,6 +393,7 @@ app.post('/saveFees', function (req, res) {
     params['f2']=req.body.f2.trim();
     params['f3']=req.body.f3.trim();
     params['f4']=req.body.f4.trim();
+    params['f5']=req.body.f5.trim();
 
     if (email===req.session.email && req.session.admin===true) {
         SaveFees(params).then(function (response) {
@@ -424,7 +425,7 @@ let SaveFees= function SaveFees(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`update Fees set fees =(case when id=1 then `+params['f1']+` when id=2 then `+params['f2']+` when id=3 then `+params['f3']+` when id=4 then `+params['f4']+` end)`, function (err, result) {
+            connection.query(`update Fees set fees =(case when id=1 then `+params['f1']+` when id=2 then `+params['f2']+` when id=3 then `+params['f3']+` when id=4 then `+params['f4']+` when id=5 then `+params['f5']+` end)`, function (err, result) {
                 connection.end();
                 if (err) {
                     console.log(err);

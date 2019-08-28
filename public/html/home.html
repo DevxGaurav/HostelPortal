@@ -217,6 +217,7 @@
                         document.getElementById('double_bm_fees').style.color="#34d870";
                         document.getElementById('single_phd_fees').style.color="#34d870";
                         document.getElementById('double_phd_fees').style.color="#34d870";
+                        document.getElementById('security_fees').style.color="#34d870";
 
                         let fees=userinfo.fees;
                         for (let i=0;i<fees.length;i++) {
@@ -231,6 +232,9 @@
                             }
                             if (fees[i].id===4) {
                                 document.getElementById('double_phd_fees').innerText="Rs. "+fees[i].fees+"/semester";
+                            }
+                            if (fees[i].id===5) {
+                                document.getElementById('security_fees').innerText="Rs. "+fees[i].fees+"/semester";
                             }
                         }
                     }else if (userinfo.requests[i].status===3) {
@@ -541,8 +545,13 @@
                 </div>
             </div>
             <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                <div style="float: left; font-size: 18px; width: 40%;">Double room- PHD</div>
+                <div style="float: left; font-size: 18px; width: 40%;">Married room</div>
                 <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px;" id="double_phd_fees">
+                </div>
+            </div>
+            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                <div style="float: left; font-size: 18px; width: 40%;">Security</div>
+                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px;" id="security_fees">
                 </div>
             </div>
         </div>
