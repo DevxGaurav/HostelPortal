@@ -777,17 +777,26 @@ let AddAdmin= function AddAdmin(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`insert into Admin (name, email, picture, lastlogin) values ('', '`+params['add_email']+`', '', '');`, function (err, result) {
-                connection.end();
-                if (err) {
-                    console.log(err);
-                    response['code']=-1;
-                    response['info']= "Oops! looks like we have some problem with our database. Please try again";
-                    reject(JSON.stringify(response));
+            connection.query(`select * from Admin where email='`+params['add_email']+`';`, function(err, result) {
+                if (result.length===0) {
+                    connection.query(`insert into Admin (name, email, picture, lastlogin) values ('', '`+params['add_email']+`', '', '');`, function (err, result) {
+                        connection.end();
+                        if (err) {
+                            console.log(err);
+                            response['code']=-1;
+                            response['info']= "Oops! looks like we have some problem with our database. Please try again";
+                            reject(JSON.stringify(response));
+                        }else {
+                            response['code']=1;
+                            response['info']= "Admin Added";
+                            resolve(JSON.stringify(response));
+                        }
+                    });
                 }else {
-                    response['code']=1;
-                    response['info']= "Admin Added";
-                    resolve(JSON.stringify(response));
+                    connection.end();
+                    response['code']=-4;
+                    response['info']= "User is already a Admin";
+                    reject(JSON.stringify(response));
                 }
             });
         }).catch(function (err) {
@@ -842,22 +851,27 @@ let RequestHostel= function RequestHostel(params) {
                     reject(JSON.stringify(response));
                 }else {
                     //calculated distance from maps api
-                    const distance=JSON.parse(body).resourceSets[0].resources[0].travelDistance;
-
-                    //status 0:requested, 1:approved_current_sem, 2:was_approved, 3:rejected_current_sem, 4:was rejected
-                    connection.query(`insert into Requests (uid, request_time, prefered_hostel, semester, type, house_no, locality, city, state, pincode, status, distance) values (`+params['id']+`, '`+dt+`', '`+params['prefered_hostel']+`', '`+params['semester']+`', '`+params['type']+`', '`+params['house_no']+`', '`+params['locality']+`', '`+params['city']+`', '`+params['state']+`', '`+params['pincode']+`', 0, `+distance+`); update Users set house_no='`+params['house_no']+`', locality='`+params['locality']+`', city='`+params['city']+`', state='`+params['state']+`', pincode='`+params['pincode']+`' where email='`+params['email']+`';`, function (err, result) {
-                        connection.end();
-                        if (err) {
-                            console.log(err);
-                            response['code']=-1;
-                            response['info']= "Oops! looks like we have some problem with our database. Please try again";
-                            reject(JSON.stringify(response));
-                        }else {
-                            response['code']=1;
-                            response['info']= "Request Placed";
-                            resolve(JSON.stringify(response));
-                        }
-                    });
+                    try{
+                        const distance=JSON.parse(body).resourceSets[0].resources[0].travelDistance;
+                        //status 0:requested, 1:approved_current_sem, 2:was_approved, 3:rejected_current_sem, 4:was rejected
+                        connection.query(`insert into Requests (uid, request_time, prefered_hostel, semester, type, house_no, locality, city, state, pincode, status, distance) values (`+params['id']+`, '`+dt+`', '`+params['prefered_hostel']+`', '`+params['semester']+`', '`+params['type']+`', '`+params['house_no']+`', '`+params['locality']+`', '`+params['city']+`', '`+params['state']+`', '`+params['pincode']+`', 0, `+distance+`); update Users set house_no='`+params['house_no']+`', locality='`+params['locality']+`', city='`+params['city']+`', state='`+params['state']+`', pincode='`+params['pincode']+`' where email='`+params['email']+`';`, function (err, result) {
+                            connection.end();
+                            if (err) {
+                                console.log(err);
+                                response['code']=-1;
+                                response['info']= "Oops! looks like we have some problem with our database. Please try again";
+                                reject(JSON.stringify(response));
+                            }else {
+                                response['code']=1;
+                                response['info']= "Request Placed";
+                                resolve(JSON.stringify(response));
+                            }
+                        });
+                    }catch(err) {
+                        response['code']=-3;
+                        response['info']= "Looks like you entered a wrong or fake address! Please try some landmarks";
+                        reject(JSON.stringify(response));
+                    }
                 }
             });
         }).catch(function (err) {
