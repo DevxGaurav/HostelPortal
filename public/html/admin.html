@@ -458,6 +458,11 @@
                                                 </div>
                                             </div>
                                             <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Address </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+(userinfo.requests[i].house_no+", "+userinfo.requests[i].locality+", "+userinfo.requests[i].city+", "+userinfo.requests[i].state+", "+userinfo.requests[i].pincode)+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
                                                 <div style="float: left; font-size: 18px; width: 40%;">Distance </div>
                                                 <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].distance+` Km
                                                 </div>
@@ -587,6 +592,7 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function() {
                 userinfo=JSON.parse(xhr.responseText);
+                console.log(userinfo);
                 displayData();
             };
             xhr.send("email="+profile.getEmail());
@@ -738,7 +744,7 @@
         <p class="textFormatNormal" style="font-size: 16px;">&copy 2019 Indraprastha Institute of Information Technology, Delhi</p>
     </div>
     <div style="text-align: center; float: right; width: 100%;">
-        <p class="textFormatNormal" style="font-size: 16px;">Feel free to report any bug at <a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=gaurav17289@iiitd.ac.in">gaurav17289@iiitd.ac.in</a></p>
+        <p class="textFormatNormal" style="font-size: 16px;">Feel free to report any bug at <a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=gaurav17289@iiitd.ac.in&su=Bug: Hostel Portal">gaurav17289@iiitd.ac.in</a></p>
     </div>
 </div>
 
