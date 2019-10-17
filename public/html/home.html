@@ -34,7 +34,11 @@
                 document.getElementById('previousRequest_div').style.display="none";
                 document.getElementById('request_hostel_chip').className="top_panel_link_box_active";
                 document.getElementById('current_request_chip').className="top_panel_link_box_disable";
-                document.getElementById('previous_request_chip').className="top_panel_link_box";
+                if(previous_btn_status===0) {
+                    document.getElementById('previous_request_chip').className="top_panel_link_box_disable";
+                }else {
+                    document.getElementById('previous_request_chip').className="top_panel_link_box";
+                }
             }
         }
 
@@ -48,7 +52,11 @@
                 document.getElementById('previousRequest_div').style.display="none";
                 document.getElementById('request_hostel_chip').className="top_panel_link_box_disable";
                 document.getElementById('current_request_chip').className="top_panel_link_box_active";
-                document.getElementById('previous_request_chip').className="top_panel_link_box";
+                if(previous_btn_status===0) {
+                    document.getElementById('previous_request_chip').className="top_panel_link_box_disable";
+                }else {
+                    document.getElementById('previous_request_chip').className="top_panel_link_box";
+                }
             }
         }
 
@@ -76,21 +84,23 @@
             if (current_request_id===-1) {
                 showSnackBar("No request to cancel!");
             }else {
-                document.getElementById('loading').style.visibility="visible";
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/cancelRequest');
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                xhr.onload = function() {
-                    document.getElementById('loading').style.visibility="hidden";
-                    let response=JSON.parse(xhr.responseText);
-                    if (response.code===1) {
-                        showSnackBar(response.info);
-                        refresh();
-                    }else {
-                        showSnackBar(response.info);
-                    }
-                };
-                xhr.send("email="+userinfo.user.email+"&request_id="+current_request_id);
+                if (confirm("Are you sure you want to cancel your hostel request?")) {
+                    document.getElementById('loading').style.visibility="visible";
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/cancelRequest');
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.onload = function() {
+                        document.getElementById('loading').style.visibility="hidden";
+                        let response=JSON.parse(xhr.responseText);
+                        if (response.code===1) {
+                            showSnackBar(response.info);
+                            refresh();
+                        }else {
+                            showSnackBar(response.info);
+                        }
+                    };
+                    xhr.send("email="+userinfo.user.email+"&request_id="+current_request_id);
+                }
             }
         }
         
@@ -471,7 +481,7 @@
         </div>
 
         <div style="font-size: 25px; width: 44%; float: left; margin-left: 28%; margin-top: 50px;  margin-bottom: 50px;">
-            <button style="width: 100%; border: 0px solid; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ffffff;" class="textFormatNormal" onclick="placeHostelRequest()">Submit Request</button>
+            <button style="width: 100%; border: 0px solid; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ffffff; cursor:pointer;" class="textFormatNormal" onclick="placeHostelRequest()">Submit Request</button>
         </div>
     </div>
 
@@ -557,7 +567,7 @@
         </div>
 
         <div style="font-size: 25px; width: 44%; float: left; margin-left: 28%; margin-bottom: 50px; margin-top: 40px;">
-            <button style="width: 100%; border: 0px solid; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ffffff;" class="textFormatNormal" onclick="cancelRequest()" id="cancel_req_button">Cancel Request</button>
+            <button style="width: 100%; border: 0px solid; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ffffff; cursor: pointer;" class="textFormatNormal" onclick="cancelRequest()" id="cancel_req_button">Cancel Request</button>
             <a href="https://payments.iiitd.edu.in/pg/fees/pg.html" target="_blank" style="text-decoration: none;"><button style="width: 100%; border: 0px solid; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ffffff; cursor: pointer;" class="textFormatNormal" id="pay_fee_button">Pay Fee</button></a>
         </div>
     </div>
