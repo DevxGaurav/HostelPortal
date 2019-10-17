@@ -795,7 +795,7 @@ let AddAdmin= function AddAdmin(params) {
                 }else {
                     connection.end();
                     response['code']=-4;
-                    response['info']= "User is already a Admin";
+                    response['info']= "User is already an Admin";
                     reject(JSON.stringify(response));
                 }
             });
