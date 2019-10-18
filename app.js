@@ -15,6 +15,12 @@ app.use(session({
     saveUninitialized: false
 }));
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
 app.listen(80, function () {
     console.log("Listening on server port: 80");
 });
@@ -26,8 +32,6 @@ app.get("/", function (req, res) {
 
 //handle user login
 app.post("/login", function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     //post parameters
     const params= {};
     params['token']= req.body.token.trim();
@@ -60,8 +64,6 @@ app.get('/logout', function (req, res) {
         response['code']=1;
         response['info']="logout success";
     }
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.end(JSON.stringify(response));
 });
 
@@ -80,8 +82,6 @@ app.get('/home', function (req, res) {
 
 //return all account information
 app.post('/accountInfo', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -104,8 +104,6 @@ app.post('/accountInfo', function (req, res) {
 
 //Place request
 app.post('/requestHostel', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const email=req.body.email.trim();
     const params= {};
     params['email']=email;
@@ -136,8 +134,6 @@ app.post('/requestHostel', function (req, res) {
 
 //cancel requests
 app.post('/cancelRequest', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email= req.body.email.trim();
     const params= {};
@@ -169,8 +165,6 @@ app.get('/admin', function (req, res) {
 
 //add admin
 app.post('/addAdmin', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email= req.body.email.trim();
     const params= {};
@@ -193,8 +187,6 @@ app.post('/addAdmin', function (req, res) {
 
 //admin account info
 app.post('/adminAccountInfo', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -216,8 +208,6 @@ app.post('/adminAccountInfo', function (req, res) {
 
 //change semester
 app.post('/changeSemester', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -240,8 +230,6 @@ app.post('/changeSemester', function (req, res) {
 
 
 app.post('/rejectRequest', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
