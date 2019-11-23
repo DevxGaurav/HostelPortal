@@ -15,13 +15,6 @@ app.use(session({
     saveUninitialized: false
 }));
 
-app.use(function(req, res, next) {
-    res.setHeader("Set-Cookie", "HttpOnly;SameSite=Strict");
-    res.header("Access-Control-Allow-Origin", "http://localhost"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
-
 app.listen(80, function () {
     console.log("Listening on server port: 80");
 });
@@ -33,6 +26,9 @@ app.get("/", function (req, res) {
 
 //handle user login
 app.post("/login", function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     //post parameters
     const params= {};
     params['token']= req.body.token.trim();
@@ -65,6 +61,9 @@ app.get('/logout', function (req, res) {
         response['code']=1;
         response['info']="logout success";
     }
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.end(JSON.stringify(response));
 });
 
@@ -83,6 +82,9 @@ app.get('/home', function (req, res) {
 
 //return all account information
 app.post('/accountInfo', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -105,6 +107,9 @@ app.post('/accountInfo', function (req, res) {
 
 //Place request
 app.post('/requestHostel', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const email=req.body.email.trim();
     const params= {};
     params['email']=email;
@@ -135,6 +140,9 @@ app.post('/requestHostel', function (req, res) {
 
 //cancel requests
 app.post('/cancelRequest', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email= req.body.email.trim();
     const params= {};
@@ -166,6 +174,9 @@ app.get('/admin', function (req, res) {
 
 //add admin
 app.post('/addAdmin', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email= req.body.email.trim();
     const params= {};
@@ -188,6 +199,9 @@ app.post('/addAdmin', function (req, res) {
 
 //admin account info
 app.post('/adminAccountInfo', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -209,6 +223,9 @@ app.post('/adminAccountInfo', function (req, res) {
 
 //change semester
 app.post('/changeSemester', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -231,6 +248,9 @@ app.post('/changeSemester', function (req, res) {
 
 
 app.post('/rejectRequest', function (req, res) {
+    res.header("Set-Cookie", "HttpOnly;SameSite=Strict");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const email=req.body.email.trim();
     const params= {};
@@ -698,7 +718,7 @@ let AdminAccountInfo= function AdminAccountInfo(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and (status=0 or status=1 or status=3); select * from Semesters;`, function (err, result) {
+            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and (status=0 or status=1 or status=3) order by distance DESC; select * from Semesters;`, function (err, result) {
                 connection.end();
                 if (err) {
                     console.log(err);
@@ -839,8 +859,7 @@ let RequestHostel= function RequestHostel(params) {
                     response['info']= "Opps! we couldn't find the distance between your home and college. Please try again";
                     reject(JSON.stringify(response));
                 }else {
-                    //calculated distance from maps api
-                    try{
+                    try {
                         const distance=JSON.parse(body).resourceSets[0].resources[0].travelDistance;
                         //status 0:requested, 1:approved_current_sem, 2:was_approved, 3:rejected_current_sem, 4:was rejected
                         connection.query(`insert into Requests (uid, request_time, prefered_hostel, semester, type, house_no, locality, city, state, pincode, status, distance) values (`+params['id']+`, '`+dt+`', '`+params['prefered_hostel']+`', '`+params['semester']+`', '`+params['type']+`', '`+params['house_no']+`', '`+params['locality']+`', '`+params['city']+`', '`+params['state']+`', '`+params['pincode']+`', 0, `+distance+`); update Users set house_no='`+params['house_no']+`', locality='`+params['locality']+`', city='`+params['city']+`', state='`+params['state']+`', pincode='`+params['pincode']+`' where email='`+params['email']+`';`, function (err, result) {
@@ -1112,7 +1131,7 @@ let connectDB= function connectDB() {
             host: "remotemysql.com",
             port: 3306,
             user: "4y1kC9vQqC",
-            password: "lvhOrLSbsl",
+            password: "rVU8OzyYKl",
             database: "4y1kC9vQqC",
             multipleStatements: true
         });
