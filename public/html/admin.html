@@ -11,11 +11,9 @@
 
     <script>
         let userinfo;
-        let new_request_button_status=0;
-        let approved_request_button_status=0;
-        let rejected_request_button_status=0;
         let approved_request_json=[];
         let rejected_request_json=[];
+        let transaction_json=[];
 
         $(document).ready(function(){
             document.getElementById('new_requests_div').style.display="none";
@@ -24,6 +22,7 @@
             document.getElementById('nothing_to_show_div').style.display="none";
             document.getElementById('semester_info').style.display="none";
             document.getElementById('fees_info').style.display="none";
+            document.getElementById('req_info').style.display="none";
         });
 
         function addAdmin() {
@@ -32,8 +31,8 @@
         
         //approve or reject a student requests
         function respondToRequest(status, id) {
+            window.scrollTo(0, 0);
             if (status===0) {
-                window.scrollTo(0, 0);
                 document.getElementById('loading').style.visibility="visible";
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', '/rejectRequest');
@@ -74,57 +73,464 @@
             }
         }
 
+        function moreInfo(id) {
+            let trans_his="";
+            document.getElementById('verify_pay_info').style.display="none";
+            document.getElementById('transaction_his_info').innerHTML="";
+            document.getElementById('loading').style.visibility = "visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/transHistory');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility = "hidden";
+                let json=JSON.parse(xhr.responseText);
+                console.log(json);
+                if (json.code===1) {
+                    for (let i=json.transactions.length-1;i>=0;i--) {
+                        if (json.transactions[i].rid===id) {
+                            let payment_type="";
+                            if (json.transactions[i].type===0) {
+                                payment_type="Direct Payment";
+                            }else {
+                                payment_type="UTR Payment";
+                            }
+                            trans_his+=`<div class="request_box" style="width: 90%; padding: 15px;">
+                                       <div class="textFormatNormal" style="font-size: 16px;">Payment Type:
+                                            <div style="font-size: 16px; float:right;" id="pay_type_info">`+payment_type+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Transaction ID:
+                                            <div style="font-size: 16px; float:right;" id="transaction_id_info">`+json.transactions[i].transaction_id+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Payment ID:
+                                            <div style="font-size: 16px; float:right;" id="pay_id_info">`+json.transactions[i].payment_id+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Message:
+                                            <div style="font-size: 16px; float:right;" id="message_info">`+json.transactions[i].message+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Amount:
+                                            <div style="font-size: 16px; float:right;" id="amount_info">Rs. `+json.transactions[i].amount+`/-</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Transaction Time:
+                                            <div style="font-size: 16px; float:right;" id="transaction_time_info">`+json.transactions[i].pay_time+`</div>
+                                        </div>
+                                </div>`
+                        }
+                    }
+                    document.getElementById('transaction_his_info').innerHTML=trans_his;
+                }else {
+                    showSnackBar(json.info);
+                }
+            };
+            xhr.send("email="+userinfo.user.email+"&id="+id);
+            for (let i=0;i<userinfo.requests.length;i++) {
+                if (userinfo.requests[i].id===id) {
+                    document.getElementById('name_info').innerText=userinfo.requests[i].name;
+                    document.getElementById('email_info').innerText=userinfo.requests[i].email;
+                    document.getElementById('program_info').innerText=userinfo.requests[i].program;
+                    document.getElementById('address_info').innerText=userinfo.requests[i].house_no+", "+userinfo.requests[i].locality+", "+userinfo.requests[i].city+", "+userinfo.requests[i].state+", "+userinfo.requests[i].pincode;
+                    document.getElementById('req_date_info').innerText=userinfo.requests[i].request_time;
+                    if (userinfo.requests[i].hostel_allocated===null){
+                        document.getElementById('hostel_info').innerText=userinfo.requests[i].prefered_hostel;
+                    }else {
+                        document.getElementById('hostel_info').innerText=userinfo.requests[i].hostel_allocated;
+                    }
+                    document.getElementById('room_type_info').innerText=userinfo.requests[i].type;
+                    document.getElementById('room_alloc_info').innerText=userinfo.requests[i].room_allocated;
+                    document.getElementById('distance_info').innerText=userinfo.requests[i].distance+" Km";
+                    document.getElementById('reviewed_on_info').innerText=userinfo.requests[i].reviewed_on;
+                    document.getElementById('reviewed_by_info').innerText=userinfo.requests[i].reviewed_by_name;
+                    let pay_status="";
+                    if (userinfo.requests[i].payment_status===0) {
+                        pay_status="Fee not paid";
+                    }else if (userinfo.requests[i].payment_status===1) {
+                        pay_status="Fee unverified";
+                        document.getElementById('verify_pay_info').style.display="block";
+                    }else if (userinfo.requests[i].payment_status===2) {
+                        pay_status="Fee Verified";
+                    }
+                    document.getElementById('pay_status_info').innerText=pay_status;
+                }
+            }
+            document.getElementById('reject_req_info').onclick=function() {
+                respondToRequest(0, id);
+            };
+            document.getElementById('verify_pay_info').onclick=function() {
+                verifyPayment(id);
+            };
+            document.getElementById('req_info').style.display="block";
+            document.getElementById('req_info').style.height=(screen.height)+"px";
+        }
+
+        function verifyPayment(id) {
+            document.getElementById('loading').style.visibility = "visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/payVerified');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility = "hidden";
+                let json=JSON.parse(xhr.responseText);
+                if (json.code===1) {
+                    showSnackBar(json.info);
+                }else {
+                    showSnackBar(json.info);
+                }
+            };
+            xhr.send("email="+userinfo.user.email+"&id="+id);
+        }
+
         //load new requests
         function newRequests() {
-            if (new_request_button_status===1) {
-                document.getElementById('new_requests_div').style.display="block";
-                document.getElementById('approved_requests_div').style.display="none";
-                document.getElementById('rejected_requests_div').style.display="none";
-                document.getElementById('new_request_hostel_chip').className="top_panel_link_box_active";
-                if (approved_request_button_status===1) {
-                    document.getElementById('approved_request_chip').className="top_panel_link_box";
-                }
-                if (rejected_request_button_status===1) {
-                    document.getElementById('rejected_request_chip').className="top_panel_link_box";
-                }
-            }else {
-                showSnackBar("No New Requests !");
-            }
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('transactions_div').style.display="none";
+            document.getElementById('nothing_to_show_div').style.display="none";
+            document.getElementById('transactions_chip').className="top_panel_link_box";
+            document.getElementById('new_request_hostel_chip').className="top_panel_link_box_active";
+            document.getElementById('approved_request_chip').className="top_panel_link_box";
+            document.getElementById('rejected_request_chip').className="top_panel_link_box";
+            document.getElementById('loading').style.visibility="visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/adminAccountInfo');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility="hidden";
+                let data=JSON.parse(xhr.responseText);
+                showNewRequests(data);
+            };
+            xhr.send("email="+userinfo.user.email);
         }
 
         //load approved requests
         function approvedRequests() {
-            if (approved_request_button_status===1) {
-                document.getElementById('new_requests_div').style.display="none";
-                document.getElementById('rejected_requests_div').style.display="none";
-                document.getElementById('approved_requests_div').style.display="block";
-                document.getElementById('approved_request_chip').className="top_panel_link_box_active";
-                if (new_request_button_status===1) {
-                    document.getElementById('new_request_hostel_chip').className="top_panel_link_box";
-                }
-                if (rejected_request_button_status===1) {
-                    document.getElementById('rejected_request_chip').className="top_panel_link_box";
-                }
-            }else {
-                showSnackBar("No Recently Approved Requests !");
-            }
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('transactions_div').style.display="none";
+            document.getElementById('nothing_to_show_div').style.display="none";
+            document.getElementById('transactions_chip').className="top_panel_link_box";
+            document.getElementById('approved_request_chip').className="top_panel_link_box_active";
+            document.getElementById('rejected_request_chip').className="top_panel_link_box";
+            document.getElementById('new_request_hostel_chip').className="top_panel_link_box";
+            document.getElementById('loading').style.visibility="visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/adminAccountInfo');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility="hidden";
+                let data=JSON.parse(xhr.responseText);
+                showApprovedRequests(data);
+            };
+            xhr.send("email="+userinfo.user.email);
         }
 
         //load rejected requests
         function rejectedRequests() {
-            if (rejected_request_button_status===1) {
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('transactions_div').style.display="none";
+            document.getElementById('nothing_to_show_div').style.display="none";
+            document.getElementById('transactions_chip').className="top_panel_link_box";
+            document.getElementById('rejected_request_chip').className="top_panel_link_box_active";
+            document.getElementById('new_request_hostel_chip').className="top_panel_link_box";
+            document.getElementById('approved_request_chip').className="top_panel_link_box";
+            document.getElementById('loading').style.visibility="visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/adminAccountInfo');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility="hidden";
+                let data=JSON.parse(xhr.responseText);
+                showRejectedRequests(data);
+            };
+            xhr.send("email="+userinfo.user.email);
+        }
+
+        function Transactions() {
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('transactions_div').style.display="none";
+            document.getElementById('nothing_to_show_div').style.display="none";
+            document.getElementById('transactions_chip').className="top_panel_link_box_active";
+            document.getElementById('new_request_hostel_chip').className="top_panel_link_box";
+            document.getElementById('approved_request_chip').className="top_panel_link_box";
+            document.getElementById('rejected_request_chip').className="top_panel_link_box";
+
+            document.getElementById('loading').style.visibility="visible";
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/getTransactions');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                document.getElementById('loading').style.visibility="hidden";
+                const resp=JSON.parse(xhr.responseText);
+                if (resp.code===1) {
+                    showTransactions(resp);
+                }else {
+                    showSnackBar(resp.info);
+                }
+            };
+            xhr.send("email="+userinfo.user.email);
+        }
+
+        function showNewRequests(userinfo) {
+            let new_requests_str="";
+            let count=0;
+            for (let i=0;i<userinfo.requests.length;i++) {
+                let status;
+                let color;
+                let hostel;
+                let room_alloc;
+                if (userinfo.requests[i].status===0) {
+                    count++;
+                    status="Pending...";
+                    color="#989a96";
+                    hostel=userinfo.requests[i].prefered_hostel;
+                    room_alloc=".";
+                    new_requests_str=new_requests_str+`
+                                    <div class="request_box">
+                                        <div style="float: left;">
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 40px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Request by </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].name+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;"></div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 14px; color:`+color+`;"><a class="textFormatLink" style="color: `+color+`;" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Program </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].program+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Request date </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].request_time+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Semester </div>
+                                                <div style="float: right;margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].semester+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Hostel </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+hostel+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Room Type </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].type+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Address </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+(userinfo.requests[i].house_no+", "+userinfo.requests[i].locality+", "+userinfo.requests[i].city+", "+userinfo.requests[i].state+", "+userinfo.requests[i].pincode)+`
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%;">Distance </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].distance+` Km
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%; margin-top: 10px;">Allocate Hostel </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">
+                                                    <select style="width: 240px; border: 1px solid #f0f1ef; padding: 10px; border-radius: 5px; font-family: comfortaa, sans-serif; font-size: 18px;" id="hostel_alloc_`+userinfo.requests[i].id+`">
+                                                        <option value="0" selected>Select</option>
+                                                        <option value="Boys Hostel H2">Boys Hostel H2</option>
+                                                        <option value="Girls Hostel H1">Girls Hostel H1</option>
+                                                        <option value="Boys Hostel">Boys Hostel</option>
+                                                        <option value="Girls Hostel">Girls Hostel</option>
+                                                        <option value="Married Hostel">Married Hostel</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px; margin-bottom: 40px;" class="textFormatNormal">
+                                                <div style="float: left; font-size: 18px; width: 40%; margin-top: 10px;">Allocate Room </div>
+                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">
+                                                    <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef;" placeholder="Room number" id="room_alloc_`+userinfo.requests[i].id+`"><br>
+                                                </div>
+                                            </div>
+                                            <div style="font-size: 25px; width: 80%; float: left; margin-left: 10%; margin-bottom: 50px;">
+                                                <button style="width: 49%; border: 1px solid #303030; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #34d870; cursor:pointer;" class="textFormatNormal" onclick="respondToRequest(1,`+userinfo.requests[i].id+`)">Approve</button>
+                                                <button style="width: 49%; border: 1px solid #303030; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ff4848; cursor:pointer;" class="textFormatNormal" onclick="respondToRequest(0,`+userinfo.requests[i].id+`)">Reject</button>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                }
+            }
+            document.getElementById('container_new_requests_div').innerHTML=new_requests_str;
+            document.getElementById('new_requests_div').style.display="block";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('transactions_div').style.display="none";
+            if (count===0) {
+                document.getElementById('new_requests_div').style.display="none";
+                document.getElementById('nothing_to_show_div').style.display="block";
+            }
+        }
+
+        function showApprovedRequests(userinfo) {
+            let approved_request_str="";
+            let count=0;
+            for (let i=0;i<userinfo.requests.length;i++) {
+                let status;
+                let color;
+                let hostel;
+                let room_alloc;
+                if (userinfo.requests[i].status===1) {
+                    count++;
+                    status="Approved";
+                    color="#34d870";
+                    hostel=userinfo.requests[i].hostel_allocated;
+                    room_alloc=userinfo.requests[i].room_allocated;
+                    approved_request_json.push(userinfo.requests[i]);
+                    let payment_status="";
+                    if (userinfo.requests[i].payment_status===0) {
+                        payment_status="fee not paid";
+                    }else if (userinfo.requests[i].payment_status===1) {
+                        payment_status="Fee payment unverified";
+                    }else if (userinfo.requests[i].payment_status===2) {
+                        payment_status="Fee payment verified";
+                    }
+                    approved_request_str+=`
+                                    <div style="height: 40px;">
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].hostel_allocated+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].room_allocated+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+payment_status+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; padding-top: 5px;"><button
+                                    style="width: 120px; border: 1px solid #303030; padding: 5px; background-color: #303030; border-radius: 10px; font-size: 16px; color: #FFFFFF; cursor:pointer;"
+                                     class="textFormatNormal" onclick="moreInfo(`+userinfo.requests[i].id+`)">More Info</button></div>
+                                </div>
+                                <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
+                }
+            }
+            document.getElementById('container_approved_requests_div').innerHTML=approved_request_str;
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="block";
+            document.getElementById('transactions_div').style.display="none";
+            if (count===0) {
+                document.getElementById('approved_requests_div').style.display="none";
+                document.getElementById('nothing_to_show_div').style.display="block";
+            }
+        }
+
+        function showRejectedRequests(userinfo) {
+            let rejected_request_str="";
+            let count=0;
+            for (let i=0;i<userinfo.requests.length;i++) {
+                let status;
+                let color;
+                let hostel;
+                let room_alloc;
+                if (userinfo.requests[i].status===3) {
+                        count++;
+                        status="Rejected";
+                        color="#ec4444";
+                        hostel=userinfo.requests[i].prefered_hostel;
+                        room_alloc=".";
+                        rejected_request_json.push(userinfo.requests[i]);
+                        rejected_request_str+=`
+                                   <div style="height: 40px;">
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].prefered_hostel+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">.</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                </div>
+                                <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
+                }
+            }
+            document.getElementById('container_rejected_requests_div').innerHTML=rejected_request_str;
+            document.getElementById('new_requests_div').style.display="none";
+            document.getElementById('approved_requests_div').style.display="none";
+            document.getElementById('rejected_requests_div').style.display="block";
+            document.getElementById('transactions_div').style.display="none";
+            if (count===0) {
+                document.getElementById('rejected_requests_div').style.display="none";
+                document.getElementById('nothing_to_show_div').style.display="block";
+            }
+        }
+        
+        function showTransactions(json) {
+            let transactions="";
+            let count=0;
+            for (let i=json.transactions.length-1; i>=0; i--) {
+                count++;
+                transaction_json.push(json.transactions[i]);
+                let pay_type="";
+                if (json.transactions[i].type===1) {
+                    pay_type="UTR Payment";
+                }else {
+                    pay_type="Direct Payment";
+                }
+                let message=".";
+                if (json.transactions[i].message!=="") {
+                    message=json.transactions[i].message;
+                }
+                let pay_id=".";
+                if (json.transactions[i].payment_id!=="") {
+                    pay_id=json.transactions[i].payment_id;
+                }
+                transactions+=`<div style="height: 40px;">
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+json.transactions[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+json.transactions[i].email+`">`+json.transactions[i].email+`</a>  </div></div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+pay_type+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+json.transactions[i].transaction_id+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+pay_id+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+message+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;">Rs. `+json.transactions[i].amount+`/-</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+json.transactions[i].pay_time+`</div>
+                                </div>
+                                <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
+                document.getElementById('container_transactions_div').innerHTML=transactions;
                 document.getElementById('new_requests_div').style.display="none";
                 document.getElementById('approved_requests_div').style.display="none";
-                document.getElementById('rejected_requests_div').style.display="block";
-                document.getElementById('rejected_request_chip').className="top_panel_link_box_active";
-                if (new_request_button_status===1) {
-                    document.getElementById('new_request_hostel_chip').className="top_panel_link_box";
-                }
-                if (approved_request_button_status===1) {
-                    document.getElementById('approved_request_chip').className="top_panel_link_box";
-                }
-            }else {
-                showSnackBar("No Recently Rejected Requests !");
+                document.getElementById('rejected_requests_div').style.display="none";
+                document.getElementById('transactions_div').style.display="block";
+            }
+            if (count===0) {
+                document.getElementById('transactions_div').style.display="none";
+                document.getElementById('nothing_to_show_div').style.display="block";
             }
         }
 
@@ -164,6 +570,10 @@
 
         function close_fees_info() {
             document.getElementById('fees_info').style.display="none";
+        }
+
+        function close_req_info() {
+            document.getElementById('req_info').style.display="none";
         }
 
         function getSemesterInfo() {
@@ -396,6 +806,10 @@
             JSONToCSVConvertor(rejected_request_json, '', true, 'rejected_requests');
         }
 
+        function downloadTransactions() {
+            JSONToCSVConvertor(transaction_json, '', true, 'transactions');
+        }
+
 
         //display the data on webpage
         function displayData() {
@@ -410,178 +824,13 @@
             newImg.src = userinfo.user.picture;
             document.getElementById('loading').style.visibility = "hidden";
 
-            let new_requests_str="";
-            let approved_request_str="";
-            let rejected_request_str="";
-            for (let i=0;i<userinfo.requests.length;i++) {
-                let status;
-                let color;
-                let hostel;
-                let room_alloc;
-                if (userinfo.requests[i].status===0) {
-                    new_request_button_status=1;
-                    status="Pending...";
-                    color="#f3b54a";
-                    hostel=userinfo.requests[i].prefered_hostel;
-                    room_alloc=".";
-                    new_requests_str=new_requests_str+`
-                                    <div class="request_box">
-                                        <div style="float: left;">
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 40px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Request by </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].name+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;"></div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 14px; color:`+color+`;"><a class="textFormatLink" style="color: `+color+`;" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Request date </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].request_time+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Semester </div>
-                                                <div style="float: right;margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].semester+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Hostel </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+hostel+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Room Type </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].type+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Address </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+(userinfo.requests[i].house_no+", "+userinfo.requests[i].locality+", "+userinfo.requests[i].city+", "+userinfo.requests[i].state+", "+userinfo.requests[i].pincode)+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Distance </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.requests[i].distance+` Km
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%; margin-top: 10px;">Allocate Hostel </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">
-                                                    <select style="width: 240px; border: 1px solid #f0f1ef; padding: 10px; border-radius: 5px; font-family: comfortaa, sans-serif; font-size: 18px;" id="hostel_alloc_`+userinfo.requests[i].id+`">
-                                                        <option value="0" selected>Select</option>
-                                                        <option value="Boys Hostel H2">Boys Hostel H2</option>
-                                                        <option value="Girls Hostel H1">Girls Hostel H1</option>
-                                                        <option value="Boys Hostel">Boys Hostel</option>
-                                                        <option value="Girls Hostel">Girls Hostel</option>
-                                                        <option value="Married Hostel">Married Hostel</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px; margin-bottom: 40px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%; margin-top: 10px;">Allocate Room </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">
-                                                    <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef;" placeholder="Room number" id="room_alloc_`+userinfo.requests[i].id+`"><br>
-                                                </div>
-                                            </div>
-                                            <div style="font-size: 25px; width: 80%; float: left; margin-left: 10%; margin-bottom: 50px;">
-                                                <button style="width: 49%; border: 1px solid #303030; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #34d870; cursor:pointer;" class="textFormatNormal" onclick="respondToRequest(1,`+userinfo.requests[i].id+`)">Approve</button>
-                                                <button style="width: 49%; border: 1px solid #303030; padding: 15px; background-color: #303030; border-radius: 10px; font-size: 20px; color: #ff4848; cursor:pointer;" class="textFormatNormal" onclick="respondToRequest(0,`+userinfo.requests[i].id+`)">Reject</button>
-                                            </div>
-                                        </div>
-                                    </div>`;
-                }else if (userinfo.requests[i].status===1 || userinfo.requests[i].status===3) {
-                    if (userinfo.requests[i].status===1) {
-                        approved_request_button_status=1;
-                        status="Approved";
-                        color="#34d870";
-                        hostel=userinfo.requests[i].hostel_allocated;
-                        room_alloc=userinfo.requests[i].room_allocated;
-                        approved_request_json.push(userinfo.requests[i]);
-                        approved_request_str+=`
-                                    <div style="height: 40px;">
-                                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].hostel_allocated+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].room_allocated+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
-                                </div>
-                                <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
-                    }else if (userinfo.requests[i].status===3) {
-                        rejected_request_button_status=1;
-                        status="Rejected";
-                        color="#ec4444";
-                        hostel=userinfo.requests[i].prefered_hostel;
-                        room_alloc=".";
-                        rejected_request_json.push(userinfo.requests[i]);
-                        rejected_request_str+=`
-                                   <div style="height: 40px;">
-                                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].prefered_hostel+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 40px;">.</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
-                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
-                                </div>
-                                <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
-                    }
-                }
-            }
-
-            document.getElementById('container_new_requests_div').innerHTML=new_requests_str;
-            if (approved_request_button_status===1) {
-                document.getElementById('container_approved_requests_div').innerHTML=approved_request_str;
-            }
-            if (rejected_request_button_status===1) {
-                document.getElementById('container_rejected_requests_div').innerHTML=rejected_request_str;
-            }
-
-            if (new_request_button_status===1) {
-                document.getElementById('new_requests_div').style.display="block";
-                document.getElementById('new_request_hostel_chip').className="top_panel_link_box_active";
-                if (approved_request_button_status===1) {
-                    document.getElementById('approved_request_chip').className="top_panel_link_box";
-                }
-                if (rejected_request_button_status===1) {
-                    document.getElementById('rejected_request_chip').className="top_panel_link_box";
-                }
-            }else if (approved_request_button_status===1) {
-                document.getElementById('approved_requests_div').style.display="block";
-                document.getElementById('approved_request_chip').className="top_panel_link_box_active";
-                if (rejected_request_button_status===1) {
-                    document.getElementById('rejected_request_chip').className="top_panel_link_box";
-                }
-            }else if (rejected_request_button_status===1) {
-                document.getElementById('rejected_requests_div').style.display="block";
-                document.getElementById('rejected_request_chip').className="top_panel_link_box_active";
-            }else {
-                document.getElementById('nothing_to_show_div').style.display="block";
-            }
+            showRejectedRequests(userinfo);
+            showApprovedRequests(userinfo);
+            showNewRequests(userinfo);
+            document.getElementById('transactions_chip').className="top_panel_link_box";
+            document.getElementById('new_request_hostel_chip').className="top_panel_link_box_active";
+            document.getElementById('approved_request_chip').className="top_panel_link_box";
+            document.getElementById('rejected_request_chip').className="top_panel_link_box";
         }
 
         // https://developers.google.com/identity/sign-in/web/sign-in    for google signin
@@ -592,7 +841,6 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function() {
                 userinfo=JSON.parse(xhr.responseText);
-                console.log(userinfo);
                 displayData();
             };
             xhr.send("email="+profile.getEmail());
@@ -630,17 +878,18 @@
 
 
 <div class="header">
-    <div style="float: left; margin-left: 1%; width: 60%;">
+    <div style="float: left; margin-left: 1%; width: 65%;">
         <div style="cursor: pointer; font-size: 20px; margin-top: 18px; float: left; width: 20%;" onclick="refresh()" class="textFormatNormal">Hostel Portal</div>
 
         <div style="float: right; margin-left:2%; width: 78%;">
-            <div class="top_panel_link_box_disable" id="new_request_hostel_chip" onclick="newRequests()">New Requests</div>
-            <div class="top_panel_link_box_disable" id="approved_request_chip" onclick="approvedRequests()">Approved Requests</div>
-            <div class="top_panel_link_box_disable" id="rejected_request_chip" onclick="rejectedRequests()">Rejected Requests</div>
+            <div class="top_panel_link_box" id="new_request_hostel_chip" onclick="newRequests()">New Requests</div>
+            <div class="top_panel_link_box" id="approved_request_chip" onclick="approvedRequests()">Approved Requests</div>
+            <div class="top_panel_link_box" id="rejected_request_chip" onclick="rejectedRequests()">Rejected Requests</div>
             <div class="top_panel_link_box" id="previous_request_chip" onclick="allRequests()">All Requests</div>
             <div class="top_panel_link_box" id="add_admin_chip" onclick="addAdmin()">Add Admin</div>
             <div class="top_panel_link_box" id="semester_chip" onclick="semester_info()">Semesters</div>
             <div class="top_panel_link_box" id="fees_chip" onclick="fees_info()">Fees</div>
+            <div class="top_panel_link_box" id="transactions_chip" onclick="Transactions()">Transactions</div>
         </div>
     </div>
 
@@ -673,26 +922,30 @@
 
     <div id="approved_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Approved Requests</p><div style="cursor: pointer;" onclick="downloadApproved()"><a class="textFormatLink">Download Excel File for Approved Requests</a></div>
-        <div style="width: 100%;">
-            <div class="request_box">
+        <div style="width: 100%; overflow-x: scroll;">
+            <div class="request_box" style="width: 1900px;">
                 <div style="height: 40px;">
-                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
+                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 20px;"><b>Room Alloc</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Alloc</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Payment Status</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>More options</b></div>
                 </div>
                 <div style="border: 1px solid #e1e4dd;"></div>
 
@@ -703,26 +956,26 @@
 
     <div id="rejected_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Rejected Requests</p><div style="cursor: pointer;" onclick="downloadRejected()"><a class="textFormatLink">Download Excel File for Rejected Requests</a></div>
-        <div style="width: 100%;">
-            <div class="request_box">
+        <div style="width: 100%; overflow-x: scroll;">
+            <div class="request_box" style="width: 1500px;">
                 <div style="height: 40px;">
-                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
+                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 20px;"><b>Room Alloc</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Alloc</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
                 </div>
                 <div style="border: 1px solid #e1e4dd;"></div>
 
@@ -731,8 +984,35 @@
         </div>
     </div>
 
+
+    <div id="transactions_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left; display: none;">
+        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Transactions</p><div style="cursor: pointer;" onclick="downloadTransactions()"><a class="textFormatLink">Download Excel File for Transactions</a></div>
+        <div style="width: 100%; overflow-x: scroll;">
+            <div class="request_box" style="width: 1450px;">
+                <div style="height: 40px;">
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Type</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Transaction ID</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Payment ID</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Message</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Amount</b></div>
+                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Transaction Time</b></div>
+                </div>
+                <div style="border: 1px solid #e1e4dd;"></div>
+
+                <div id="container_transactions_div" style="width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="nothing_to_show_div" style="border: 1px solid #e1e4dd; border-radius: 10px; width: 70%; margin-left: 15%;  margin-top: 170px; float: left;">
-        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">no new or recent requests !</p>
+        <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Nothing to show here!</p>
     </div>
 </div>
 
@@ -770,7 +1050,7 @@
     </div>
 </div>
 
-<div style="width: 100%; background-color: #3030308f; position:relative;" id="fees_info">
+<div style="width: 100%; background-color: #3030308f; position:relative; display: none;" id="fees_info">
     <div style="background-color: #FFFFFF; width: 40%; position:absolute; margin-left: 30%; padding: 30px; border-radius: 10px; margin-top: 100px; margin-bottom: 100px;" class="textFormatNormal">
         <div style="float: right; cursor: pointer;" onclick="close_fees_info()"><img src="../images/close.png" height="22" width="22"></div>
         <div style="text-align: center; font-size: 25px;">Fees</div><br><br>
@@ -790,6 +1070,60 @@
             <input type="number" class="textFormatNormal" style="padding: 10px; width: 180px; font-size: 18px; border-radius: 5px; border: 1px solid #f0f1ef; margin-left: 227px;" placeholder="Fees" id="security_fees">
         </div><br><br>
         <button style="width: 80%; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 10%; margin-right: 10%; border-radius: 10px; font-size: 14px; color: #ffffff;" class="textFormatNormal" onclick="saveFees()">Save Fees</button>
+    </div>
+</div>
+
+<div style="width: 100%; background-color: #3030308f; position:relative; display: none;" id="req_info">
+    <div style="background-color: #FFFFFF; width: 40%; position:absolute; margin-left: 30%; padding: 30px; border-radius: 10px; margin-top: 30px; margin-bottom: 100px;" class="textFormatNormal">
+        <div style="float: right; cursor: pointer;" onclick="close_req_info()"><img src="../images/close.png" height="22" width="22"></div>
+        <div style="text-align: center; font-size: 25px;">Request Info</div><br><br>
+        <div style="height: 400px; overflow-y: scroll; padding: 10px;">
+            <div class="textFormatNormal" style="font-size: 16px;">Name:
+                <div style="font-size: 16px; float:right;" id="name_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Email:
+                <div style="font-size: 16px; float:right;" id="email_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Program:
+                <div style="font-size: 16px; float:right;" id="program_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Address:
+                <div style="font-size: 16px; float:right;" id="address_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Request Date:
+                <div style="font-size: 16px; float:right;" id="req_date_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Hostel:
+                <div style="font-size: 16px; float:right;" id="hostel_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Room Type:
+                <div style="font-size: 16px; float:right;" id="room_type_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Room Allocated:
+                <div style="font-size: 16px; float:right;" id="room_alloc_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Distance:
+                <div style="font-size: 16px; float:right;" id="distance_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Reviewed on:
+                <div style="font-size: 16px; float:right;" id="reviewed_on_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Reviewed by:
+                <div style="font-size: 16px; float:right;" id="reviewed_by_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Payment Status:
+                <div style="font-size: 16px; float:right;" id="pay_status_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Transaction History:
+                <div style="font-size: 16px; float:right;"></div>
+            </div>
+            <div id="transaction_his_info">
+
+            </div>
+            <button style="width: 80%; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 10%; margin-top: 20px; margin-right: 10%; border-radius: 10px; font-size: 14px; color: #ffffff;" class="textFormatNormal" id="reject_req_info">Reject this request</button><br><br>
+            <button style="width: 80%; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 10%; margin-right: 10%; border-radius: 10px; font-size: 14px; color: #ffffff; display: none;" class="textFormatNormal" id="verify_pay_info">Verify Payment</button>
+            <br><br>
+        </div>
     </div>
 </div>
 </body>

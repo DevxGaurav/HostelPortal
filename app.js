@@ -122,6 +122,7 @@ app.post('/requestHostel', function (req, res) {
     params['semester']=req.body.semester.trim();
     params['prefered_hostel']=req.body.prefered_hostel.trim();
     params['type']=req.body.type.trim();
+    params['program']=req.body.program.trim();
 
     if (email===req.session.email) {
         RequestHostel(params).then(function (response) {
@@ -419,6 +420,145 @@ app.post('/saveFees', function (req, res) {
     }
 });
 
+app.post('/verifyPayment', function (req, res) {
+    const email=req.body.email.trim();
+    const name=req.body.name.trim();
+    const message=req.body.message.trim();
+    const transaction_id=req.body.transactionid.trim();
+    const payment_id=req.body.paymentid.trim();
+    const amount=req.body.amount.trim();
+    const params= {};
+    params['email']=email;
+    params['name']=name;
+    params['message']=message;
+    params['transaction_id']=transaction_id;
+    params['payment_id']=payment_id;
+    params['amount']=amount;
+    if (email===req.session.email) {
+        VerifyPayment(params).then(function (response) {
+            response=JSON.parse(response);
+            let resp = `<div style="font-size: 20px;">Transaction status: `+response.message+`</div><br><div style="font-size: 20px;">Transaction ID: `+response.transaction_id+`</div><br><div style="font-size: 20px;">Payment ID: `+response.payment_id+`</div><br><div style="font-size: 20px;">Amount: `+response.amount+`</div><br>`;
+            res.redirect("/home");
+            res.end(resp);
+        }).catch(function (response) {
+            response=JSON.parse(response);
+            let resp = `<div style="font-size: 20px;">Transaction status: `+response.message+`</div><br><div style="font-size: 20px;">Transaction ID: `+response.transaction_id+`</div><br><div style="font-size: 20px;">Payment ID: `+response.payment_id+`</div><br><div style="font-size: 20px;">Amount: `+response.amount+`</div><br>`;
+            res.redirect("/home");
+            res.end(resp);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+app.post('/requestAgain', function (req, res) {
+    const email=req.body.email.trim();
+    const id=req.body.id.trim();
+    const params= {};
+    params['email']=email;
+    params['id']=id;
+    if (email===req.session.email) {
+        RequestAgain(params).then(function (response) {
+            res.end(response);
+        }).catch(function (response) {
+            res.end(response);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+app.post('/saveUTR', function (req, res) {
+    const email=req.body.email.trim();
+    const utr=req.body.utr.trim();
+    const params= {};
+    params['email']=email;
+    params['transaction_id']=utr;
+    if (email===req.session.email) {
+        SaveUTR(params).then(function (response) {
+            res.end(response);
+        }).catch(function (response) {
+            res.end(response);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+
+app.post('/payVerified', function (req, res) {
+    const email=req.body.email.trim();
+    const id=req.body.id.trim();
+    const params= {};
+    params['email']=email;
+    params['id']=id;
+
+    if (email===req.session.email && req.session.admin===true) {
+        PayVerified(params).then(function (response) {
+            res.end(response);
+        }).catch(function (response) {
+            res.end(response);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+
+app.post('/getTransactions', function (req, res) {
+    const email=req.body.email.trim();
+    const params= {};
+    params['email']=email;
+
+    if (email===req.session.email && req.session.admin===true) {
+        getTransactions(params).then(function (response) {
+            res.end(response);
+        }).catch(function (response) {
+            res.end(response);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+
+app.post('/transHistory', function (req, res) {
+    const email=req.body.email.trim();
+    const id=req.body.id.trim();
+    const params= {};
+    params['email']=email;
+    params['id']=id;
+
+    if (email===req.session.email && req.session.admin===true) {
+        TransHistory(params).then(function (response) {
+            res.end(response);
+        }).catch(function (response) {
+            res.end(response);
+        });
+    }else {
+        //login verification failed
+        const response= {};
+        response['code']= -1;
+        response['info']= "Unauthorized access";
+        res.end(JSON.stringify(response));
+    }
+});
+
 //invalid routes
 app.get("*", function (req, res) {
     res.sendFile(__dirname+"/public/html/error.html");
@@ -428,6 +568,244 @@ app.get("*", function (req, res) {
 app.post("*", function (req, res) {
     res.sendFile(__dirname+"/public/html/error.html");
 });
+
+
+let TransHistory=function TransHistory(params) {
+    return new Promise(function (resolve, reject) {
+        let response={};
+        connectDB().then(function (connection) {
+            connection.query(`select * from Transactions where rid=`+params['id']+`;`, function (err, result) {
+               connection.end();
+               if (err) {
+                   console.log(err);
+                   response['code'] = -1;
+                   response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                   reject(JSON.stringify(response));
+               }else {
+                   response['code'] = 1;
+                   response['info'] = "transaction fetch successful";
+                   response['transactions']=[];
+                   for (let i=0;i<result.length;i++) {
+                       let obj= {};
+                       obj['id']=result[i].id;
+                       obj['rid']=result[i].rid;
+                       obj['uid']=result[i].uid;
+                       obj['name']=result[i].name;
+                       obj['email']=result[i].email;
+                       obj['type']=result[i].type;
+                       obj['message']=result[i].message;
+                       obj['transaction_id']=result[i].transaction_id;
+                       obj['payment_id']=result[i].payment_id;
+                       obj['amount']=result[i].amount;
+                       obj['pay_time']=result[i].pay_time;
+                       response['transactions'].push(obj);
+                   }
+                   resolve(JSON.stringify(response));
+               }
+            });
+        }).catch(function (error) {
+            console.log(error);
+            response['code'] = -1;
+            response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+            reject(JSON.stringify(response));
+        });
+    });
+};
+
+let getTransactions=function getTransactions(params) {
+    return new Promise(function (resolve, reject) {
+        let response={};
+        connectDB().then(function (connection) {
+            connection.query(`select Transactions.*, Users.name, Users.email from Transactions, Users where Transactions.uid=Users.id;`, function (err, result) {
+                connection.end();
+                if (err) {
+                    console.log(err);
+                    response['code'] = -1;
+                    response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                    reject(JSON.stringify(response));
+                }else {
+                    response['code'] = 1;
+                    response['info'] = "transaction fetch successful";
+                    response['transactions']=[];
+                    for (let i=0;i<result.length;i++) {
+                        let obj= {};
+                        obj['id']=result[i].id;
+                        obj['rid']=result[i].rid;
+                        obj['uid']=result[i].uid;
+                        obj['name']=result[i].name;
+                        obj['email']=result[i].email;
+                        obj['type']=result[i].type;
+                        obj['message']=result[i].message;
+                        obj['transaction_id']=result[i].transaction_id;
+                        obj['payment_id']=result[i].payment_id;
+                        obj['amount']=result[i].amount;
+                        obj['pay_time']=result[i].pay_time;
+                        response['transactions'].push(obj);
+                    }
+                    resolve(JSON.stringify(response));
+                }
+            });
+        }).catch(function (error) {
+            console.log(error);
+            response['code'] = -1;
+            response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+            reject(JSON.stringify(response));
+        });
+    });
+};
+
+let PayVerified=function PayVerified(params) {
+    return new Promise(function (resolve, reject) {
+        let response={};
+        connectDB().then(function (connection) {
+            connection.query(`update Requests set payment_status=2 where id=`+params['id']+`;`, function (err, result) {
+                connection.end();
+                if (err) {
+                    console.log(err);
+                    response['code'] = -1;
+                    response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                    reject(JSON.stringify(response));
+                }else {
+                    response['code'] = 1;
+                    response['info'] = "Status updated";
+
+                    resolve(JSON.stringify(response));
+                }
+            });
+        }).catch(function (error) {
+            console.log(error);
+            response['code'] = -1;
+            response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+            reject(JSON.stringify(response));
+        });
+    });
+};
+
+let SaveUTR= function SaveUTR(params) {
+    return new Promise(function (resolve, reject) {
+        const response={};
+        AccountInfo(params).then(function (result) {
+            result=JSON.parse(result);
+            let uid=result.user.id;
+            let rid=-1;
+            for (let i=0;i<result.requests.length; i++) {
+                if (result.requests[i].status===1) {
+                    rid=result.requests[i].id;
+                }
+            }
+            if (rid!==-1) {
+                connectDB().then(function (connection) {
+                    let payment_status=1;
+                    const dateTime = require('node-datetime');
+                    const dt = dateTime.create().format('Y-m-d H:M:S');
+                    connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 1, '', '`+params['transaction_id']+`', '', '', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
+                        connection.end();
+                        if (err) {
+                            console.log(err);
+                            response['code'] = -1;
+                            response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                            reject(JSON.stringify(response));
+                        }else {
+                            response['code'] = 1;
+                            response['info'] = "Payment updated";
+                            response['message']=params['message'];
+                            response['transaction_id']=params['transcation_id'];
+                            response['payment_id']=params['payment_id'];
+                            response['amount']=params['amount'];
+                            resolve(JSON.stringify(response));
+                        }
+                    });
+                }).catch(function (error) {
+                    response['code']=-1;
+                    response['info']= "Oops! looks like we have some problem with our database. Please try again";
+                    reject(JSON.stringify(result));
+                });
+            }else {
+                result['code']=-1;
+                result['info']= "No current request found for this user!";
+                reject(JSON.stringify(result));
+            }
+        }).catch(function (response) {
+            reject(response);
+        });
+    });
+};
+let RequestAgain= function RequestAgain(params) {
+    return new Promise(function (resolve, reject) {
+        let response ={};
+        connectDB().then(function (connection) {
+            connection.query(`update Requests set status=4 where uid=`+params['id']+` and status=3;`, function (err, result) {
+                connection.end();
+                if (err) {
+                    console.log(err);
+                    response['code'] = -1;
+                    response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                    reject(JSON.stringify(response));
+                }else {
+                    response['code'] = 1;
+                    response['info'] = "Request successfully moved";
+                    resolve(JSON.stringify(response));
+                }
+            });
+        }).catch(function (error) {
+            response['code']=-1;
+            response['info']= "Oops! looks like we have some problem with our database. Please try again";
+            reject(JSON.stringify(result));
+        });
+    });
+};
+let VerifyPayment= function VerifyPayment(params) {
+    return new Promise(function (resolve, reject) {
+        const response={};
+        AccountInfo(params).then(function (result) {
+            result=JSON.parse(result);
+            let uid=result.user.id;
+            let rid=-1;
+            for (let i=0;i<result.requests.length; i++) {
+                if (result.requests[i].status===1) {
+                    rid=result.requests[i].id;
+                }
+            }
+            if (rid!==-1) {
+                connectDB().then(function (connection) {
+                    let payment_status=0;
+                    if (params['message'].toLowerCase()==="transaction successful") {
+                        payment_status=1;
+                    }
+                    const dateTime = require('node-datetime');
+                    const dt = dateTime.create().format('Y-m-d H:M:S');
+                    connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 0, '`+params['message']+`', '`+params['transaction_id']+`', '`+params['payment_id']+`', '`+params['amount']+`', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
+                        connection.end();
+                        if (err) {
+                            console.log(err);
+                            response['code'] = -1;
+                            response['info'] = "Oops! looks like we have some problem with our database. Please try again";
+                            reject(JSON.stringify(response));
+                        }else {
+                            response['code'] = 1;
+                            response['info'] = "Payment updated";
+                            response['message']=params['message'];
+                            response['transaction_id']=params['transcation_id'];
+                            response['payment_id']=params['payment_id'];
+                            response['amount']=params['amount'];
+                            resolve(JSON.stringify(response));
+                        }
+                    });
+                }).catch(function (error) {
+                    response['code']=-1;
+                    response['info']= "Oops! looks like we have some problem with our database. Please try again";
+                    reject(JSON.stringify(result));
+                });
+            }else {
+                result['code']=-1;
+                result['info']= "No current request found for this user!";
+                reject(JSON.stringify(result));
+            }
+        }).catch(function (response) {
+            reject(response);
+        });
+    });
+};
 
 
 let SaveFees= function SaveFees(params) {
@@ -574,7 +952,7 @@ let AllRequests= function AllRequests(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and status!=0 order by distance desc;`, function (err, result) {
+            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email, Users.program from Requests, Users where uid=Users.id and status!=0 order by distance desc; select * from Transactions;`, function (err, result) {
                 connection.end();
                 if (err) {
                     console.log(err);
@@ -614,10 +992,29 @@ let AllRequests= function AllRequests(params) {
                         obj['reviewed_on']=result[1][i].reviewed_on;
                         obj['name']=result[1][i].name;
                         obj['email']=result[1][i].email;
+                        obj['program']=result[1][i].program;
                         obj['reviewed_by_name']=result[1][i].reviewed_by_name;
                         obj['reviewed_by_email']=result[1][i].reviewed_by_email;
+                        obj['payment_status']=result[1][i].payment_status;
                         response['requests'].push(obj);
                     }
+
+                    response['transactions']=[];
+
+                    for (let i=0;i<result[2].length; i++) {
+                        let obj={};
+                        obj['id']=result[2][i].id;
+                        obj['uid']=result[2][i].uid;
+                        obj['rid']=result[2][i].rid;
+                        obj['type']=result[2][i].type;
+                        obj['transaction_id']=result[2][i].transaction_id;
+                        obj['payment_id']=result[2][i].payment_id;
+                        obj['message']=result[2][i].message;
+                        obj['amount']=result[2][i].amount;
+                        obj['pay_time']=result[2][i].pay_time;
+                        response['transactions'].push(obj);
+                    }
+                    resolve(JSON.stringify(response));
                     resolve(JSON.stringify(response));
                 }
             });
@@ -718,7 +1115,7 @@ let AdminAccountInfo= function AdminAccountInfo(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email from Requests, Users where uid=Users.id and (status=0 or status=1 or status=3) order by distance DESC; select * from Semesters;`, function (err, result) {
+            connection.query(`select * from Admin where email='`+params['email']+`'; select Requests.*, Users.name, Users.email, Users.program from Requests, Users where uid=Users.id and (status=0 or status=1 or status=3) order by distance DESC;`, function (err, result) {
                 connection.end();
                 if (err) {
                     console.log(err);
@@ -758,17 +1155,11 @@ let AdminAccountInfo= function AdminAccountInfo(params) {
                         obj['reviewed_on']=result[1][i].reviewed_on;
                         obj['name']=result[1][i].name;
                         obj['email']=result[1][i].email;
+                        obj['program']=result[1][i].program;
                         obj['reviewed_by_name']=result[1][i].reviewed_by_name;
                         obj['reviewed_by_email']=result[1][i].reviewed_by_email;
+                        obj['payment_status']=result[1][i].payment_status;
                         response['requests'].push(obj);
-                    }
-                    response['semesters']=[];
-                    for (let i=0;i<result[2].length; i++) {
-                        let obj={};
-                        obj['id']=result[2][i].id;
-                        obj['name']=result[2][i].name;
-                        obj['status']=result[2][i].status;
-                        response['semesters'].push(obj);
                     }
                     resolve(JSON.stringify(response));
                 }
@@ -862,7 +1253,7 @@ let RequestHostel= function RequestHostel(params) {
                     try {
                         const distance=JSON.parse(body).resourceSets[0].resources[0].travelDistance;
                         //status 0:requested, 1:approved_current_sem, 2:was_approved, 3:rejected_current_sem, 4:was rejected
-                        connection.query(`insert into Requests (uid, request_time, prefered_hostel, semester, type, house_no, locality, city, state, pincode, status, distance) values (`+params['id']+`, '`+dt+`', '`+params['prefered_hostel']+`', '`+params['semester']+`', '`+params['type']+`', '`+params['house_no']+`', '`+params['locality']+`', '`+params['city']+`', '`+params['state']+`', '`+params['pincode']+`', 0, `+distance+`); update Users set house_no='`+params['house_no']+`', locality='`+params['locality']+`', city='`+params['city']+`', state='`+params['state']+`', pincode='`+params['pincode']+`' where email='`+params['email']+`';`, function (err, result) {
+                        connection.query(`insert into Requests (uid, request_time, prefered_hostel, semester, type, house_no, locality, city, state, pincode, status, distance, payment_status) values (`+params['id']+`, '`+dt+`', '`+params['prefered_hostel']+`', '`+params['semester']+`', '`+params['type']+`', '`+params['house_no']+`', '`+params['locality']+`', '`+params['city']+`', '`+params['state']+`', '`+params['pincode']+`', 0, `+distance+`, 0); update Users set house_no='`+params['house_no']+`', locality='`+params['locality']+`', city='`+params['city']+`', state='`+params['state']+`', pincode='`+params['pincode']+`', program='`+params['program']+`' where email='`+params['email']+`';`, function (err, result) {
                             connection.end();
                             if (err) {
                                 console.log(err);
@@ -916,9 +1307,10 @@ let AccountInfo= function AccountInfo(params) {
                     obj['city']=result[0].city;
                     obj['state']=result[0].state;
                     obj['pincode']=result[0].pincode;
+                    obj['program']=result[0].program;
                     response['user']=obj;
 
-                    connection.query(`select * from Requests where uid=`+result[0].id+`; select * from Semesters; select * from Fees`, function (err, result2) {
+                    connection.query(`select * from Requests where uid=`+result[0].id+`; select * from Semesters where status=3 or status=2; select * from Fees; select * from Transactions where uid=`+result[0].id+`;`, function (err, result2) {
                         connection.end();
                         if (err) {
                             response['code']=-1;
@@ -944,6 +1336,7 @@ let AccountInfo= function AccountInfo(params) {
                                 obj['room_allocated']=result2[0][i].room_allocated;
                                 obj['hostel_allocated']=result2[0][i].hostel_allocated;
                                 obj['reviewed_on']=result2[0][i].reviewed_on;
+                                obj['payment_status']=result2[0][i].payment_status;
                                 response['requests'].push(obj);
                             }
 
@@ -963,6 +1356,20 @@ let AccountInfo= function AccountInfo(params) {
                                 obj['name']=result2[2][i].name;
                                 obj['fees']=result2[2][i].fees;
                                 response['fees'].push(obj);
+                            }
+
+                            response['transactions']=[];
+                            for (let i=0;i<result2[3].length;i++) {
+                                let obj={};
+                                obj['id']=result2[3][i].id;
+                                obj['rid']=result2[3][i].rid;
+                                obj['type']=result2[3][i].type;
+                                obj['message']=result2[3][i].message;
+                                obj['transaction_id']=result2[3][i].transaction_id;
+                                obj['payment_id']=result2[3][i].payment_id;
+                                obj['amount']=result2[3][i].amount;
+                                obj['pay_time']=result2[3][i].pay_time;
+                                response['transactions'].push(obj);
                             }
                             resolve(JSON.stringify(response));
                         }

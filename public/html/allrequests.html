@@ -216,34 +216,49 @@
                 let color="";
                 let hostel;
                 let room="";
+                let payment_status=".";
                 if (data[i].status===1 || data[i].status===2) {
                     color="#e2ffed";
                     hostel=data[i].hostel_allocated;
                     room=data[i].room_allocated;
+                    if (data[i].payment_status===0) {
+                        payment_status="Fees not paid";
+                    }else if (data[i].payment_status===1){
+                        payment_status="Fees Unverified";
+                    }else if (data[i].payment_status===2) {
+                        payment_status="Fees Verified";
+                    }
                 }else if (data[i].status===3 || data[i].status===4) {
                     color="#fff0f0";
                     room=".";
                     hostel=data[i].prefered_hostel;
+                    payment_status="Not applicable";
                 }
                 req_str+=`
-                                <div style="height: 40px; background-color: `+color+`;">
-                                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+data[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+data[i].email+`">`+data[i].email+`</a></div></div>
+                                    <div style="height: 40px; background-color: `+color+`;">
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+data[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+data[i].email+`">`+data[i].email+`</a></div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].request_time.split(" ")[0]+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].request_time.split(" ")[0]+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+hostel+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].hostel_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+room+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].room_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].distance+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+data[i].reviewed_on.split(" ")[0]+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+data[i].reviewed_by_name+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+data[i].reviewed_by_name+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+payment_status+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; padding-top: 5px;"><button
+                                    style="width: 120px; border: 1px solid #303030; padding: 5px; background-color: #303030; border-radius: 10px; font-size: 16px; color: #FFFFFF; cursor:pointer;"
+                                     class="textFormatNormal" onclick="moreInfo(`+data[i].id+`)">More Info</button></div>
                                 </div>
                                 <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
             }
@@ -281,39 +296,124 @@
                     let color="";
                     let hostel;
                     let room="";
+                    let payment_status=".";
                     if (userinfo.requests[i].status===1 || userinfo.requests[i].status===2) {
                         color="#e2ffed";
                         hostel=userinfo.requests[i].hostel_allocated;
                         room=userinfo.requests[i].room_allocated;
+                        if (userinfo.requests[i].payment_status===0) {
+                            payment_status="Fees not paid";
+                        }else if (userinfo.requests[i].payment_status===1){
+                            payment_status="Fees Unverified";
+                        }else if (userinfo.requests[i].payment_status===2) {
+                            payment_status="Fees Verified";
+                        }
                     }else if (userinfo.requests[i].status===3 || userinfo.requests[i].status===4) {
                         color="#fff0f0";
                         room=".";
                         hostel=userinfo.requests[i].prefered_hostel;
                     }
                     req_str+=`
-                                <div style="height: 40px; background-color: `+color+`;">
-                                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
+                                    <div style="height: 40px;background-color: `+color+`;">
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+hostel+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].hostel_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+room+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].room_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+payment_status+`</div>
+                                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; padding-top: 5px;"><button
+                                    style="width: 120px; border: 1px solid #303030; padding: 5px; background-color: #303030; border-radius: 10px; font-size: 16px; color: #FFFFFF; cursor:pointer;"
+                                     class="textFormatNormal" onclick="moreInfo(`+userinfo.requests[i].id+`)">More Info</button></div>
                                 </div>
                                 <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
                 }
                 document.getElementById('container_requests_div').innerHTML=req_str;
             }
+        }
+
+        function moreInfo(id) {
+            let trans_his="";
+            document.getElementById('transaction_his_info').innerHTML="";
+            for (let i=0;i<userinfo.requests.length;i++) {
+                if (userinfo.requests[i].id===id) {
+                    document.getElementById('name_info').innerText=userinfo.requests[i].name;
+                    document.getElementById('email_info').innerText=userinfo.requests[i].email;
+                    document.getElementById('program_info').innerText=userinfo.requests[i].program;
+                    document.getElementById('address_info').innerText=userinfo.requests[i].house_no+", "+userinfo.requests[i].locality+", "+userinfo.requests[i].city+", "+userinfo.requests[i].state+", "+userinfo.requests[i].pincode;
+                    document.getElementById('req_date_info').innerText=userinfo.requests[i].request_time;
+                    if (userinfo.requests[i].hostel_allocated===null){
+                        document.getElementById('hostel_info').innerText=userinfo.requests[i].prefered_hostel;
+                    }else {
+                        document.getElementById('hostel_info').innerText=userinfo.requests[i].hostel_allocated;
+                    }
+                    document.getElementById('room_type_info').innerText=userinfo.requests[i].type;
+                    document.getElementById('room_alloc_info').innerText=userinfo.requests[i].room_allocated;
+                    document.getElementById('distance_info').innerText=userinfo.requests[i].distance+" Km";
+                    document.getElementById('reviewed_on_info').innerText=userinfo.requests[i].reviewed_on;
+                    document.getElementById('reviewed_by_info').innerText=userinfo.requests[i].reviewed_by_name;
+                    let pay_status="";
+                    if (userinfo.requests[i].payment_status===0) {
+                        pay_status="Fee not paid";
+                    }else if (userinfo.requests[i].payment_status===1) {
+                        pay_status="Fee unverified";
+                    }else if (userinfo.requests[i].payment_status===2) {
+                        pay_status="Fee Verified";
+                    }
+                    document.getElementById('pay_status_info').innerText=pay_status;
+                }
+            }
+
+            for (let i=userinfo.transactions.length-1;i>=0;i--) {
+                if (userinfo.transactions[i].rid===id) {
+                    let payment_type="";
+                    if (userinfo.transactions[i].type===0) {
+                        payment_type="Direct Payment";
+                    }else {
+                        payment_type="UTR Payment";
+                    }
+                    trans_his+=`<div class="request_box" style="width: 90%; padding: 15px;">
+                                       <div class="textFormatNormal" style="font-size: 16px;">Payment Type:
+                                            <div style="font-size: 16px; float:right;" id="pay_type_info">`+payment_type+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Transaction ID:
+                                            <div style="font-size: 16px; float:right;" id="transaction_id_info">`+userinfo.transactions[i].transaction_id+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Payment ID:
+                                            <div style="font-size: 16px; float:right;" id="pay_id_info">`+userinfo.transactions[i].payment_id+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Message:
+                                            <div style="font-size: 16px; float:right;" id="message_info">`+userinfo.transactions[i].message+`</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Amount:
+                                            <div style="font-size: 16px; float:right;" id="amount_info">Rs. `+userinfo.transactions[i].amount+`/-</div>
+                                        </div><br>
+                                        <div class="textFormatNormal" style="font-size: 16px;">Transaction Time:
+                                            <div style="font-size: 16px; float:right;" id="transaction_time_info">`+userinfo.transactions[i].pay_time+`</div>
+                                        </div>
+                                </div>`
+                }
+            }
+            document.getElementById('transaction_his_info').innerHTML=trans_his;
+            document.getElementById('req_info').style.display="block";
+            document.getElementById('req_info').style.height=(screen.height)+"px";
+        }
+
+        function close_req_info() {
+            document.getElementById('req_info').style.display="none";
         }
 
         //show a message at bottom of screen
@@ -467,29 +567,34 @@
 
 
 
-            <div class="request_box">
-                <div style="height: 40px;">
-                    <div style="width: 15%; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 11%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 12%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 5%; float: left; text-align: center; vertical-align: center; line-height: 20px;"><b>Room Alloc</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 8%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 10%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
-                    <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 13%; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
-                </div>
-                <div style="border: 1px solid #e1e4dd;"></div>
+            <div style="overflow-x: scroll; width: 100%;">
+                <div class="request_box" style="width: 1900px;">
+                    <div style="height: 40px;">
+                        <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Alloc</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Payment Status</b></div>
+                        <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
+                        <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>More options</b></div>
+                    </div>
+                    <div style="border: 1px solid #e1e4dd;"></div>
 
-                <div id="container_requests_div" style="width: 100%;">
+                    <div id="container_requests_div" style="width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -510,5 +615,56 @@
 
 
 <div id="snackbar"></div>
+
+<div style="width: 100%; background-color: #3030308f; position:relative; display: none;" id="req_info">
+    <div style="background-color: #FFFFFF; width: 40%; position:absolute; margin-left: 30%; padding: 30px; border-radius: 10px; margin-top: 30px; margin-bottom: 100px;" class="textFormatNormal">
+        <div style="float: right; cursor: pointer;" onclick="close_req_info()"><img src="../images/close.png" height="22" width="22"></div>
+        <div style="text-align: center; font-size: 25px;">Request Info</div><br><br>
+        <div style="height: 400px; overflow-y: scroll; padding: 10px;">
+            <div class="textFormatNormal" style="font-size: 16px;">Name:
+                <div style="font-size: 16px; float:right;" id="name_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Email:
+                <div style="font-size: 16px; float:right;" id="email_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Program:
+                <div style="font-size: 16px; float:right;" id="program_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Address:
+                <div style="font-size: 16px; float:right;" id="address_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Request Date:
+                <div style="font-size: 16px; float:right;" id="req_date_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Hostel:
+                <div style="font-size: 16px; float:right;" id="hostel_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Room Type:
+                <div style="font-size: 16px; float:right;" id="room_type_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Room Allocated:
+                <div style="font-size: 16px; float:right;" id="room_alloc_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Distance:
+                <div style="font-size: 16px; float:right;" id="distance_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Reviewed on:
+                <div style="font-size: 16px; float:right;" id="reviewed_on_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Reviewed by:
+                <div style="font-size: 16px; float:right;" id="reviewed_by_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Payment Status:
+                <div style="font-size: 16px; float:right;" id="pay_status_info"></div>
+            </div><br>
+            <div class="textFormatNormal" style="font-size: 16px;">Transaction History:
+                <div style="font-size: 16px; float:right;"></div>
+            </div>
+            <div id="transaction_his_info">
+
+            </div><br><br>
+        </div>
+    </div>
+</div>
 </body>
 </html>
