@@ -3,13 +3,13 @@ body {
   background-color: #FFF;
 }
 
-@font-face {
+/* @font-face {
   font-family: comfortaa;
   src: url("../fonts/Comfortaa.ttf");
-}
+} */
 
 @font-face {
-  font-family: google_sans;
+  font-family: comfortaa;
   src: url("../fonts/Google_Sans.ttf");
 }
 
