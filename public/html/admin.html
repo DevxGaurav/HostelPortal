@@ -73,6 +73,33 @@
             }
         }
 
+        function filterResults() {
+            const hos_sel=document.getElementById('hostel_filter');
+            const hostel_fil=hos_sel.options[hos_sel.selectedIndex].value.trim();
+            let filtered={};
+            filtered['requests']=[];
+            if (hostel_fil==="0") {
+                for (let i=0;i<userinfo.requests.length;i++) {
+                    filtered['requests'].push(userinfo.requests[i]);
+                }
+            }else if (hostel_fil==="girls") {
+                for (let i=0;i<userinfo.requests.length;i++) {
+                    if (userinfo.requests[i].prefered_hostel.toLowerCase()==="girls hostel") {
+                        filtered['requests'].push(userinfo.requests[i]);
+                    }
+                }
+            }else if (hostel_fil==="boys") {
+                for (let i=0;i<userinfo.requests.length;i++) {
+                    if (userinfo.requests[i].prefered_hostel.toLowerCase()==="boys hostel") {
+                        filtered['requests'].push(userinfo.requests[i]);
+                    }
+                }
+            }
+            showNewRequests(filtered);
+            document.getElementById('new_requests_div').style.display="block";
+            document.getElementById('nothing_to_show_div').style.display="none";
+        }
+
         function moreInfo(id) {
             let trans_his="";
             document.getElementById('verify_pay_info').style.display="none";
@@ -363,6 +390,7 @@
                 }
             }
             document.getElementById('container_new_requests_div').innerHTML=new_requests_str;
+            document.getElementById('total_count_new_req').innerText="Total requests: "+count;
             document.getElementById('new_requests_div').style.display="block";
             document.getElementById('approved_requests_div').style.display="none";
             document.getElementById('rejected_requests_div').style.display="none";
@@ -398,25 +426,25 @@
                     }
                     approved_request_str+=`
                                     <div style="height: 40px;">
-                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].hostel_allocated+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].hostel_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].room_allocated+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].room_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_by_name+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+payment_status+`</div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+payment_status+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
                                     <div style="width: 140px; float: left; text-align: center; vertical-align: center; padding-top: 5px;"><button
                                     style="width: 120px; border: 1px solid #303030; padding: 5px; background-color: #303030; border-radius: 10px; font-size: 16px; color: #FFFFFF; cursor:pointer;"
@@ -426,6 +454,7 @@
                 }
             }
             document.getElementById('container_approved_requests_div').innerHTML=approved_request_str;
+            document.getElementById('total_count_app_req').innerText="Total requests: "+count;
             document.getElementById('new_requests_div').style.display="none";
             document.getElementById('rejected_requests_div').style.display="none";
             document.getElementById('approved_requests_div').style.display="block";
@@ -453,28 +482,29 @@
                         rejected_request_json.push(userinfo.requests[i]);
                         rejected_request_str+=`
                                    <div style="height: 40px;">
-                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].request_time.split(" ")[0]+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].prefered_hostel+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].prefered_hostel+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
                                     <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">.</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+userinfo.requests[i].reviewed_on.split(" ")[0]+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px;">`+userinfo.requests[i].reviewed_by_name+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_by_name+`</div>
                                 </div>
                                 <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
                 }
             }
             document.getElementById('container_rejected_requests_div').innerHTML=rejected_request_str;
+            document.getElementById('total_count_rej_req').innerText="Total requests: "+count;
             document.getElementById('new_requests_div').style.display="none";
             document.getElementById('approved_requests_div').style.display="none";
             document.getElementById('rejected_requests_div').style.display="block";
@@ -484,7 +514,7 @@
                 document.getElementById('nothing_to_show_div').style.display="block";
             }
         }
-        
+
         function showTransactions(json) {
             let transactions="";
             let count=0;
@@ -506,22 +536,23 @@
                     pay_id=json.transactions[i].payment_id;
                 }
                 transactions+=`<div style="height: 40px;">
-                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; ">`+json.transactions[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+json.transactions[i].email+`">`+json.transactions[i].email+`</a>  </div></div>
+                                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+json.transactions[i].email+`">`+json.transactions[i].email+`</a>  </div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+pay_type+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+json.transactions[i].transaction_id+`</div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].transaction_id+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+pay_id+`</div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_id+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+message+`</div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+message+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;">Rs. `+json.transactions[i].amount+`/-</div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rs. `+json.transactions[i].amount+`/-</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;">`+json.transactions[i].pay_time+`</div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].pay_time+`</div>
                                 </div>
                                 <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
                 document.getElementById('container_transactions_div').innerHTML=transactions;
+                document.getElementById('total_count_trans_req').innerText="Total Transactions: "+count;
                 document.getElementById('new_requests_div').style.display="none";
                 document.getElementById('approved_requests_div').style.display="none";
                 document.getElementById('rejected_requests_div').style.display="none";
@@ -916,12 +947,25 @@
 
     <div id="new_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 50%; margin-left: 25%;  margin-top: 10px; float: left;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">New Requests</p>
+        <div class="textFormatNormal" style="font-size: 20px;">
+            <div id="total_count_new_req" style="float: left; margin-top: 15px;"></div><div style="float: right;">Requests from:
+                <select style="border: 1px solid #f0f1ef; width: 100px; padding: 10px; margin-left: 10px; border-radius: 5px; font-family: comfortaa, sans-serif; font-size: 18px;" id="hostel_filter">
+                    <option value="0" selected>All</option>
+                    <option value="boys">Boys</option>
+                    <option value="girls">Girls</option>
+                </select>
+            <button id="button_filter" style="border: 0px solid #303030; padding: 10px; background-color: #f0f1ef; border-radius: 5px; margin-top: 10px; font-size: 16px; color: #000000; " class="textFormatNormal" onclick="filterResults()">Apply Filter</button>
+            </div>
+        </div>
         <div id="container_new_requests_div" style="width: 100%;">
         </div>
     </div>
 
     <div id="approved_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Approved Requests</p><div style="cursor: pointer;" onclick="downloadApproved()"><a class="textFormatLink">Download Excel File for Approved Requests</a></div>
+        <div class="textFormatNormal" style="font-size: 20px;">
+            <div id="total_count_app_req" style="float: left; margin-top: 15px;"></div>
+        </div>
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1900px;">
                 <div style="height: 40px;">
@@ -956,6 +1000,9 @@
 
     <div id="rejected_requests_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Rejected Requests</p><div style="cursor: pointer;" onclick="downloadRejected()"><a class="textFormatLink">Download Excel File for Rejected Requests</a></div>
+        <div class="textFormatNormal" style="font-size: 20px;">
+            <div id="total_count_rej_req" style="float: left; margin-top: 15px;"></div>
+        </div>
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1500px;">
                 <div style="height: 40px;">
@@ -987,6 +1034,9 @@
 
     <div id="transactions_div" style="border: 0px solid #e1e4dd; border-radius: 10px; width: 95%; margin-left: 2.5%; float: left; display: none;">
         <p style="text-align: center; font-size: 40px; " class="textFormatNormal">Transactions</p><div style="cursor: pointer;" onclick="downloadTransactions()"><a class="textFormatLink">Download Excel File for Transactions</a></div>
+        <div class="textFormatNormal" style="font-size: 20px;">
+            <div id="total_count_trans_req" style="float: left; margin-top: 15px;"></div>
+        </div>
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1450px;">
                 <div style="height: 40px;">

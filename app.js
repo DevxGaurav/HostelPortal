@@ -696,8 +696,7 @@ let SaveUTR= function SaveUTR(params) {
             if (rid!==-1) {
                 connectDB().then(function (connection) {
                     let payment_status=1;
-                    const dateTime = require('node-datetime');
-                    const dt = dateTime.create().format('Y-m-d H:M:S');
+                    const dt = new Date().toDateString();
                     connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 1, '', '`+params['transaction_id']+`', '', '', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
                         connection.end();
                         if (err) {
@@ -772,8 +771,7 @@ let VerifyPayment= function VerifyPayment(params) {
                     if (params['message'].toLowerCase()==="transaction successful") {
                         payment_status=1;
                     }
-                    const dateTime = require('node-datetime');
-                    const dt = dateTime.create().format('Y-m-d H:M:S');
+                    const dt = new Date().toDateString();
                     connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 0, '`+params['message']+`', '`+params['transaction_id']+`', '`+params['payment_id']+`', '`+params['amount']+`', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
                         connection.end();
                         if (err) {
@@ -1032,8 +1030,7 @@ let ApproveRequest= function ApproveRequest(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            const dateTime = require('node-datetime');
-            const dt = dateTime.create().format('Y-m-d H:M:S');
+            const dt = new Date().toDateString();
             connection.query(`update Requests set status=1, reviewed_by_name='`+params['name']+`', reviewed_by_email='`+params['email']+`', reviewed_on='`+dt+`', room_allocated='`+params['room_allocated']+`', hostel_allocated='`+params['hostel_allocated']+`' where id=`+params['id']+`;`, function (err, result) {
                 connection.end();
                 if (err) {
@@ -1060,8 +1057,7 @@ let RejectRequest= function RejectRequest(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            const dateTime = require('node-datetime');
-            const dt = dateTime.create().format('Y-m-d H:M:S');
+            const dt = new Date().toDateString();
             connection.query(`update Requests set status=3, reviewed_by_name='`+params['name']+`', reviewed_by_email='`+params['email']+`', reviewed_on='`+dt+`' where id=`+params['id']+`;`, function (err, result) {
                 connection.end();
                 if (err) {
@@ -1239,8 +1235,7 @@ let RequestHostel= function RequestHostel(params) {
     return new Promise(function (resolve, reject) {
         const response= {};
         connectDB().then(function (connection) {
-            const dateTime = require('node-datetime');
-            const dt = dateTime.create().format('Y-m-d H:M:S');
+            const dt = new Date().toDateString();
 
             const url="http://dev.virtualearth.net/REST/v1/Routes?wayPoint.1="+params['house_no']+",+"+params['locality']+",+"+params['city']+",+"+params['state']+",+"+params['pincode']+"&wayPoint.2=Indraprastha+Institute+of+Information+Technology+Delhi,+Okhla+Industrial+Estate,+Phase+III,+Near+Govind+Puri+Metro+Station,+New Delhi,+Delhi+110020&optimize=distance&distanceUnit=km&key=Ak_kpR98HPwCaUnY5WzO8_EN6sKtSIZ-_cov0gUmGi3tlLXawKiAogmFTDeGj2x0";
             request(url, function (error, resp, body) {
@@ -1405,8 +1400,7 @@ let Login= function Login(params) {
                         response['info']= "Oops! looks like we have some problem with our database. Please try again";
                         reject(JSON.stringify(response));
                     }else {
-                        const dateTime = require('node-datetime');
-                        const dt = dateTime.create().format('Y-m-d H:M:S');
+                        const dt = new Date().toDateString();
                         if (result[1].length===1) {
                             //user is a admin
                             //update lastlogin and other information

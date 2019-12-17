@@ -4,10 +4,9 @@
     <list default="true" id="5ce7e12a-324b-40af-b9c9-1b951ac96c75" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/html/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/admin.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/html/allrequests.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/allrequests.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/html/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/stylesheets/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/stylesheets/style.css" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -174,6 +173,8 @@
       <workItem from="1576382374335" duration="18959000" />
       <workItem from="1576402304341" duration="603000" />
       <workItem from="1576403746976" duration="5659000" />
+      <workItem from="1576583797582" duration="25000" />
+      <workItem from="1576583854826" duration="6366000" />
     </task>
     <servers />
   </component>
@@ -192,17 +193,6 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/public/html/admin.html</url>
-          <line>425</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="masterDetails">
     <states>
