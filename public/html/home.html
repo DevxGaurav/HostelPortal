@@ -7,6 +7,7 @@
     <link href="../stylesheets/style.css" rel="stylesheet" type="text/css" />
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
 
     <script>
         let userinfo;
@@ -57,22 +58,74 @@
             }
         }
         function saveUTR() {
-            window.scrollTo(0, 0);
-            document.getElementById('loading').style.visibility="visible";
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/saveUTR');
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function() {
-                document.getElementById('loading').style.visibility="hidden";
-                let response=JSON.parse(xhr.responseText);
-                if (response.code===1) {
-                    refresh();
-                }else {
-                    showSnackBar(response.info);
-                }
-            };
-            xhr.send("email="+userinfo.user.email+"&utr="+document.getElementById('utr_fees').value);
+            let count=0;
+            if (document.getElementById('single_bm_fees_check').checked) {
+                count++;
+            }
+            if (document.getElementById('double_bm_fees_check').checked) {
+                count++;
+            }
+            if (document.getElementById('single_phd_fees_check').checked) {
+                count++;
+            }
+            if (document.getElementById('double_phd_fees_check').checked) {
+                count++;
+            }
+            if (document.getElementById('security_fees_check').checked) {
+                count++;
+            }
+            if (count===0) {
+                showSnackBar("Oops! you forgot to select a fee");
+            }else if (confirm("Are you sure you want to make the payment?")) {
+                window.scrollTo(0, 0);
+                document.getElementById('loading').style.visibility="visible";
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/saveUTR');
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onload = function() {
+                    document.getElementById('loading').style.visibility="hidden";
+                    let response=JSON.parse(xhr.responseText);
+                    if (response.code===1) {
+                        refresh();
+                    }else {
+                        showSnackBar(response.info);
+                    }
+                };
+                xhr.send("email="+userinfo.user.email+"&utr="+document.getElementById('utr_fees').value+"&amount="+totalfee);
+            }
         }
+
+        function downloadReceipt(id) {
+            for (let i=0;i<userinfo.transactions.length;i++) {
+                if (userinfo.transactions[i].id===id) {
+                    document.getElementById('name_receipt').innerText=userinfo.user.name;
+                    document.getElementById('email_receipt').innerText=userinfo.user.email;
+                    document.getElementById('date_receipt').innerText=userinfo.transactions[i].pay_time;
+                    document.getElementById('trans_id_receipt').innerText=userinfo.transactions[i].transaction_id;
+                    document.getElementById('pay_id_receipt').innerText=userinfo.transactions[i].payment_id;
+                    document.getElementById('status_receipt').innerText=userinfo.transactions[i].message;
+                    document.getElementById('amount_receipt').innerText="Rs. "+userinfo.transactions[i].amount+"/-";
+                    var today = new Date();
+                    var dd = String(today.getDate()).padStart(2, '0');
+                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    var yyyy = today.getFullYear();
+
+                    today = dd + '/' + mm + '/' + yyyy;
+                    document.getElementById('date_gen_receipt').innerText=today;
+
+                    var doc = new jsPDF('p', 'pt', 'a4');
+                    doc.fromHTML(document.getElementById('fee_receipt_div').innerHTML, 40, 40, {
+                        elementHandlers: function() {
+                            return true
+                        }
+                    }, function() {
+                        doc.save('receipt.pdf')
+                    })
+                }
+            }
+        }
+
+
         function requestAgain() {
             window.scrollTo(0, 0);
             document.getElementById('loading').style.visibility="visible";
@@ -117,9 +170,9 @@
         }
 
         function pay_info() {
-            showSnackBar("Payments have been blocked for the moment. Please come back later");
-            // document.getElementById('pay_info').style.display="block";
-            // document.getElementById('pay_info').style.height=(screen.height)+"px";
+            // showSnackBar("Payments have been blocked for the moment. Please come back later");
+            document.getElementById('pay_info').style.display="block";
+            document.getElementById('pay_info').style.height=(screen.height)+"px";
         }
 
         function transactionHistory() {
@@ -273,8 +326,6 @@
                 showSnackBar("State cannot be empty");
             }else if (pincode==="") {
                 showSnackBar("Pincode cannot be empty");
-            }else if (pincode.length!==6){
-                showSnackBar("Invalid pincode");
             }else if (program==="0") {
                 showSnackBar("Please select a program");
             }else if (semester==="0") {
@@ -522,41 +573,9 @@
                 let trans_his="";
                 let color="#989a96";
                 for (let i=userinfo.transactions.length-1;i>=0;i--) {
-                    if (userinfo.transactions[i].type===1){
-                        trans_his=trans_his+`
+                    trans_his=trans_his+`
                                     <div class="request_box">
-                                        <div style="float: left;">
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 30px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Transaction ID </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].transaction_id+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Transaction Status </div>
-                                                <div style="float: right;margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].message+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Payment ID </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].payment_id+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Transaction Time </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].pay_time+`
-                                                </div>
-                                            </div>
-                                            <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px; margin-bottom: 40px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Amount </div>
-                                                <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].amount+`
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>`;
-                    }else {
-                        trans_his=trans_his+`
-                                    <div class="request_box">
-                                        <div style="float: right; margin-top: 10px; margin-right: 10px; font-size: 18px; color:`+color+`;"><b>`+`Download Receipt`+`</b></div>
+                                        <div style="float: right; margin-top: 10px; margin-right: 10px; font-size: 18px; cursor: pointer; color:`+color+`;" class="textFormatLink" onclick="downloadReceipt(`+userinfo.transactions[i].id+`)"><b>`+`Download Receipt`+`</b></div>
                                         <div style="float: left;">
                                             <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
                                                 <div style="float: left; font-size: 18px; width: 40%;">Transaction ID </div>
@@ -574,7 +593,7 @@
                                                 </div>
                                             </div>
                                             <div style="width: 70%; float: left; margin-left: 15%; margin-top: 10px;" class="textFormatNormal">
-                                                <div style="float: left; font-size: 18px; width: 40%;">Transaction Time </div>
+                                                <div style="float: left; font-size: 18px; width: 40%;">Transaction Date </div>
                                                 <div style="float: right; margin-left: 5%; width: 55%; font-size: 18px; color:`+color+`;">`+userinfo.transactions[i].pay_time+`
                                                 </div>
                                             </div>
@@ -585,7 +604,6 @@
                                             </div>
                                         </div>
                                     </div>`;
-                    }
                 }
                 document.getElementById('container_transaction_history').innerHTML=trans_his;
                 transaction_btn_status=1;
@@ -689,7 +707,7 @@
                 <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef;" placeholder="House no" id="house_no"><br>
                 <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef; margin-top: 10px;" placeholder="Street and Locality" id="locality"><br>
                 <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef; margin-top: 10px;" placeholder="City" id="city"><br>
-                <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef; margin-top: 10px;" placeholder="State" id="state"><br>
+                <input type="text" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef; margin-top: 10px;" placeholder="State and Country" id="state"><br>
                 <input type="number" class="textFormatNormal" style="padding: 10px; font-size: 22px; border-radius: 5px; border: 1px solid #f0f1ef; margin-top: 10px;" placeholder="Pincode" id="pincode"><br>
             </div>
         </div>
@@ -899,6 +917,7 @@
             <b><div style="font-size: 28px; float:right;" id="total_fees"></div></b>
         </div><br><br>
         <button style="width: 80%; border: 0px solid; padding: 15px; cursor: pointer; background-color: #303030; margin-left: 10%; margin-right: 10%; border-radius: 10px; font-size: 14px; color: #ffffff;" class="textFormatNormal" onclick="payFee()">Pay Fees</button><br><br>
+        <div style="text-align: center;"><b>Or</b></div>
         <div class="textFormatNormal" style="font-size: 16px; margin-top: 5px;">
             Already made the payment? Not a problem.<br>Enter the UTR number of the transaction below
         </div>
@@ -909,12 +928,12 @@
     </div>
 </div>
 
-<form name="mispay" method="post" enctype="multipart/form-data" action="https://payments.iiitd.edu.in/pg/hostelfee/hdfc-pg-pay.php" id="mispay" style="display: none;">
+<form name="mispay" method="post" enctype="multipart/form-data" action="https://payments.iiitd.edu.in/pg/hostelfee/index.php" id="mispay" style="display: none;">
     <input name="name" type="hidden" value="" id="name_pay">
     <input name="email" type="hidden" value="" id="email_pay">
-    <input name="gaddress" type="hidden" value="" id="add_pay">
-    <input name="gpin" type="hidden" value="" id="pin_pay">
-    <input name="gpurpose" type="hidden" value="Hostel Fee">
+    <input name="address" type="hidden" value="" id="add_pay">
+    <input name="pincode" type="hidden" value="" id="pin_pay">
+    <input name="purpose" type="hidden" value="Hostel Fee">
     <input name="amount" type="hidden" value="" id="amount_pay">
     <input name="channel" type="hidden" value="10"/>
     <input name="bank_code" type="hidden" value=""/>
@@ -947,5 +966,47 @@
     <input name="ship_state" type="hidden" value=""/>
     <input name="state" type="hidden" value=""/>
 </form>
+
+<div id="fee_receipt_div" style="display: none">
+    <p id="date_gen_receipt"></p><br>
+    <img src="../images/logo_expanded.png" height="60" width="300"><br><br>
+    <p>
+        <p><b>IIITD Hostel Fee Receipt</b></p><br>
+        <p>
+            <b>Name:</b>
+            <div id="name_receipt"></div>
+        </p><br><br><br>
+        <p>
+            <b>Email ID:</b>
+            <div id="email_receipt"></div>
+        </p><br>
+        <p>
+            <b>Date:</b>
+            <div id="date_receipt"></div>
+        </p><br>
+        <p>
+            <b>Transaction ID:</b>
+            <div id="trans_id_receipt"></div>
+        </p><br>
+        <p>
+            <b>Payment ID:</b>
+            <div id="pay_id_receipt"></div>
+        </p><br>
+        <p>
+            <b>Transaction Status:</b>
+            <div id="status_receipt"></div>
+        </p><br>
+        <p>
+            <b>Amount:</b>
+            <div id="amount_receipt"></div>
+        </p><br>
+    </p><br>
+    <p>
+        This is digitally signed receipt and does not require physical signature
+    </p>
+    <p>
+        <p>&copy 2019 Indraprastha Institute of Information Technology, Delhi</p>
+    </p>
+</div>
 </body>
 </html>

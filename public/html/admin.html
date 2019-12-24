@@ -403,6 +403,7 @@
 
         function showApprovedRequests(userinfo) {
             let approved_request_str="";
+            approved_request_json=[];
             let count=0;
             for (let i=0;i<userinfo.requests.length;i++) {
                 let status;
@@ -428,19 +429,19 @@
                                     <div style="height: 40px;">
                                     <div style="width: 230px; float: left; text-align: center;  vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a></div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].hostel_allocated+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].hostel_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].room_allocated+`</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].room_allocated+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
                                     <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_by_name+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
@@ -467,6 +468,7 @@
 
         function showRejectedRequests(userinfo) {
             let rejected_request_str="";
+            rejected_request_json=[];
             let count=0;
             for (let i=0;i<userinfo.requests.length;i++) {
                 let status;
@@ -484,19 +486,19 @@
                                    <div style="height: 40px;">
                                     <div style="width: 230px; float: left; text-align: center;  vertical-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+userinfo.requests[i].email+`">`+userinfo.requests[i].email+`</a>  </div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].request_time+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].semester+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].prefered_hostel+`</div>
+                                    <div style="width: 200px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].prefered_hostel+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
+                                    <div style="width: 180px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;">.</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; ">.</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
+                                    <div style="width: 100px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].distance+` Km</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
+                                    <div style="width: 140px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_on+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
                                     <div style="width: 200px; float: left; text-align: center; vertical-align: center; padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+userinfo.requests[i].reviewed_by_name+`</div>
                                 </div>
@@ -517,6 +519,7 @@
 
         function showTransactions(json) {
             let transactions="";
+            transaction_json=[];
             let count=0;
             for (let i=json.transactions.length-1; i>=0; i--) {
                 count++;
@@ -538,17 +541,17 @@
                 transactions+=`<div style="height: 40px;">
                                     <div style="width: 230px; float: left; text-align: center;  vertical-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].name+`<br><div style="font-size: 12px;"><a class="textFormatLink" target="_blank" href="https://mail.google.com/mail/?view=cm&fs=1&to=`+json.transactions[i].email+`">`+json.transactions[i].email+`</a>  </div></div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_type+`</div>
+                                    <div style="width: 160px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_type+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].transaction_id+`</div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].transaction_id+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_id+`</div>
+                                    <div style="width: 230px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+pay_id+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+message+`</div>
+                                    <div style="width: 250px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+message+`</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rs. `+json.transactions[i].amount+`/-</div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rs. `+json.transactions[i].amount+`/-</div>
                                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].pay_time+`</div>
+                                    <div style="width: 150px; float: left; text-align: center; vertical-align: center;  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">`+json.transactions[i].pay_time+`</div>
                                 </div>
                                 <div style="border-bottom: 1px solid #e1e4dd;"></div>`;
                 document.getElementById('container_transactions_div').innerHTML=transactions;
@@ -969,27 +972,27 @@
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1900px;">
                 <div style="height: 40px;">
-                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; "><b>Name</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; "><b>Request Date</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; "><b>Semester</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; "><b>Hostel</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
+                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; "><b>Room Type</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Alloc</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; "><b>Room Alloc</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; "><b>Distance</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; "><b>Reviewed On</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; "><b>Reviewed By</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Payment Status</b></div>
+                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; "><b>Payment Status</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>More options</b></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; "><b>More options</b></div>
                 </div>
                 <div style="border: 1px solid #e1e4dd;"></div>
 
@@ -1006,23 +1009,23 @@
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1500px;">
                 <div style="height: 40px;">
-                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; "><b>Name</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Request Date</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; "><b>Request Date</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Semester</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; "><b>Semester</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Hostel</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; "><b>Hostel</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Type</b></div>
+                    <div style="width: 180px; float: left; text-align: center; vertical-align: center; "><b>Room Type</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Room Alloc</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; "><b>Room Alloc</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Distance</b></div>
+                    <div style="width: 100px; float: left; text-align: center; vertical-align: center; "><b>Distance</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed On</b></div>
+                    <div style="width: 140px; float: left; text-align: center; vertical-align: center; "><b>Reviewed On</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Reviewed By</b></div>
+                    <div style="width: 200px; float: left; text-align: center; vertical-align: center; "><b>Reviewed By</b></div>
                 </div>
                 <div style="border: 1px solid #e1e4dd;"></div>
 
@@ -1040,19 +1043,19 @@
         <div style="width: 100%; overflow-x: scroll;">
             <div class="request_box" style="width: 1450px;">
                 <div style="height: 40px;">
-                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; line-height: 40px;"><b>Name</b></div>
+                    <div style="width: 230px; float: left; text-align: center;  vertical-align: center; "><b>Name</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Type</b></div>
+                    <div style="width: 160px; float: left; text-align: center; vertical-align: center; "><b>Type</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Transaction ID</b></div>
+                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; "><b>Transaction ID</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Payment ID</b></div>
+                    <div style="width: 230px; float: left; text-align: center; vertical-align: center; "><b>Payment ID</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Message</b></div>
+                    <div style="width: 250px; float: left; text-align: center; vertical-align: center; "><b>Message</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Amount</b></div>
+                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; "><b>Amount</b></div>
                     <div style="border: 1px solid #e1e4dd; border-radius: 25%; height: 100%; float: left;"></div>
-                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; line-height: 40px;"><b>Transaction Time</b></div>
+                    <div style="width: 150px; float: left; text-align: center; vertical-align: center; "><b>Transaction Time</b></div>
                 </div>
                 <div style="border: 1px solid #e1e4dd;"></div>
 

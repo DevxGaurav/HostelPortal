@@ -114,10 +114,10 @@ app.post('/requestHostel', function (req, res) {
     const params= {};
     params['email']=email;
     params['id']=req.body.id.trim();
-    params['house_no']=req.body.house_no.trim();
-    params['locality']=req.body.locality.trim();
-    params['city']=req.body.city.trim();
-    params['state']=req.body.state.trim();
+    params['house_no']=req.body.house_no.trim().replace("'", "");
+    params['locality']=req.body.locality.trim().replace("'", "");
+    params['city']=req.body.city.trim().replace("'", "");
+    params['state']=req.body.state.trim().replace("'", "");
     params['pincode']=req.body.pincode.trim();
     params['semester']=req.body.semester.trim();
     params['prefered_hostel']=req.body.prefered_hostel.trim();
@@ -477,9 +477,11 @@ app.post('/requestAgain', function (req, res) {
 app.post('/saveUTR', function (req, res) {
     const email=req.body.email.trim();
     const utr=req.body.utr.trim();
+    const amount=req.body.amount.trim();
     const params= {};
     params['email']=email;
     params['transaction_id']=utr;
+    params['amount']=amount;
     if (email===req.session.email) {
         SaveUTR(params).then(function (response) {
             res.end(response);
@@ -697,7 +699,7 @@ let SaveUTR= function SaveUTR(params) {
                 connectDB().then(function (connection) {
                     let payment_status=1;
                     const dt = new Date().toDateString();
-                    connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 1, '', '`+params['transaction_id']+`', '', '', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
+                    connection.query(`insert into Transactions (uid, rid, type, message, transaction_id, payment_id, amount, pay_time) value (`+uid+`, `+rid+`, 1, '', '`+params['transaction_id']+`', '', '`+params['amount']+`', '`+dt+`'); update Requests set payment_status=`+payment_status+` where id=`+rid+`;`, function (err, result) {
                         connection.end();
                         if (err) {
                             console.log(err);
@@ -1532,7 +1534,7 @@ let connectDB= function connectDB() {
             host: "remotemysql.com",
             port: 3306,
             user: "4y1kC9vQqC",
-            password: "rVU8OzyYKl",
+            password: "pCTWANSk7a",
             database: "4y1kC9vQqC",
             multipleStatements: true
         });
