@@ -414,6 +414,8 @@
                 }
             }
             document.getElementById('transaction_his_info').innerHTML=trans_his;
+            document.getElementById('req_info').style.position="absolute";
+            document.getElementById('req_info').style.top=document.documentElement.scrollTop+"px";
             document.getElementById('req_info').style.display="block";
             document.getElementById('req_info').style.height=(screen.height)+"px";
         }

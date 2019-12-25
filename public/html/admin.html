@@ -183,6 +183,8 @@
             document.getElementById('verify_pay_info').onclick=function() {
                 verifyPayment(id);
             };
+            document.getElementById('req_info').style.position="absolute";
+            document.getElementById('req_info').style.top=document.documentElement.scrollTop+"px";
             document.getElementById('req_info').style.display="block";
             document.getElementById('req_info').style.height=(screen.height)+"px";
         }
@@ -642,6 +644,8 @@
 
         //semester info
         function semester_info() {
+            document.getElementById('semester_info').style.position="absolute";
+            document.getElementById('semester_info').style.top=document.documentElement.scrollTop+"px";
             document.getElementById('semester_info').style.display="block";
             document.getElementById('semester_info').style.height=(screen.height)+"px";
             getSemesterInfo();
@@ -650,6 +654,8 @@
 
         //semester info
         function fees_info() {
+            document.getElementById('fees_info').style.position="absolute";
+            document.getElementById('fees_info').style.top=document.documentElement.scrollTop+"px";
             document.getElementById('fees_info').style.display="block";
             document.getElementById('fees_info').style.height=(screen.height)+"px";
             getFeesInfo();
